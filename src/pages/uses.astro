@@ -1,0 +1,371 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHeader from '../components/PageHeader.astro';
+
+type Icon = { light: string; dark: string };
+
+type Note = { kind: 'pos' | 'neg'; text: string };
+
+type Effort = { typical: number; max: number };
+
+const effortLevels = ['baixo', 'médio', 'alto', 'máximo'] as const;
+
+const effortClass = (level: number, effort: { typical: number; max: number }) => {
+	if (level <= effort.typical) return 'text-accent';
+	if (level <= effort.max) return 'text-subtle';
+	return 'text-subtle opacity-40';
+};
+
+type Item = {
+	name: string;
+	meta: string;
+	icon?: Icon;
+	tags?: string[];
+	description: string;
+	notes: Note[];
+	effort?: Effort;
+};
+
+type Section = { title: string; items: Item[] };
+
+const monochrome = (path: string): Icon => ({ light: path, dark: path });
+
+const icons = {
+	openai: { light: '/icons/openai-light.svg', dark: '/icons/openai-dark.svg' },
+	claude: monochrome('/icons/claude.svg'),
+	codex: { light: '/icons/codex-light.svg', dark: '/icons/codex-dark.svg' },
+	opencode: { light: '/icons/opencode-light.svg', dark: '/icons/opencode-dark.svg' },
+	cursor: { light: '/icons/cursor-light.svg', dark: '/icons/cursor-dark.svg' },
+	gemini: monochrome('/icons/gemini.svg'),
+	go: { light: '/icons/go-light.svg', dark: '/icons/go-dark.svg' },
+	kimi: monochrome('/icons/kimi.svg'),
+} satisfies Record<string, Icon>;
+
+const sections: Section[] = [
+	{
+		title: 'Modelos',
+		items: [
+			{
+				name: 'GPT-5.5',
+				meta: 'padrão para código',
+				icon: icons.openai,
+				effort: { typical: 1, max: 3 },
+				description: 'meu modelo principal para planejamento e implementação. uso na maior parte do tempo com raciocínio baixo.',
+				notes: [
+					{ kind: 'pos', text: 'segue bem instruções claras' },
+					{ kind: 'pos', text: 'tende a validar e a explorar mais' },
+					{ kind: 'pos', text: 'modelo rápido' },
+					{ kind: 'neg', text: 'muito sensível à qualidade do prompt' },
+					{ kind: 'neg', text: 'tende a criar fallbacks e muitos testes' },
+				],
+			},
+			{
+				name: 'Opus 4.7',
+				meta: 'para discutir o código',
+				icon: icons.claude,
+				effort: { typical: 1, max: 3 },
+				description: 'uso quando preciso discutir, revisar ou propor melhorias. normalmente, com raciocínio médio.',
+				notes: [
+					{ kind: 'pos', text: 'excelente em UI & frontend' },
+					{ kind: 'pos', text: 'pouco sensível à qualidade do prompt' },
+					{ kind: 'pos', text: 'agradável para conversar e propor melhorias' },
+					{ kind: 'neg', text: 'consumo alto de tokens' },
+					{ kind: 'neg', text: 'voltado a resolver logo do que explorar' },
+				],
+			},
+		],
+	},
+	{
+		title: 'Harness',
+		items: [
+			{
+				name: 'Cursor',
+				meta: 'melhor editor',
+				icon: icons.cursor,
+				tags: ['ide', 'vscode', 'agente'],
+				description: 'ainda acho o melhor editor com agente. uso mais como IDE com suporte forte de IA do que como meu harness principal.',
+				notes: [
+					{ kind: 'pos', text: 'baseado no VS Code' },
+					{ kind: 'pos', text: 'bons agentes na nuvem' },
+					{ kind: 'pos', text: 'modelos bem ajustados para a plataforma' },
+					{ kind: 'neg', text: 'custo-benefício menor que outras assinaturas' },
+					{ kind: 'neg', text: 'recursos e comportamentos mudam rápido demais' },
+				],
+			},
+			{
+				name: 'Codex',
+				meta: 'harness principal',
+				icon: icons.codex,
+				tags: ['cli', 'desktop', 'openai'],
+				description: 'meu harness padrão para usar os modelos da OpenAI. a CLI é muito boa e estável; o desktop é mais bonito e completo, mas ainda instável.',
+				notes: [
+					{ kind: 'pos', text: 'melhor interface para modelos da OpenAI' },
+					{ kind: 'pos', text: 'CLI muito boa e estável' },
+					{ kind: 'pos', text: 'desktop bonito e com mais funções' },
+					{ kind: 'neg', text: 'desktop ainda tem muita instabilidade' },
+					{ kind: 'neg', text: 'recursos mudam rápido e podem quebrar' },
+				],
+			},
+			{
+				name: 'Claude Code',
+				meta: 'harness alternativo',
+				icon: icons.claude,
+				tags: ['cli', 'desktop', 'anthropic'],
+				description: 'foi o harness que mais usei. ainda gosto muito dele, especialmente com Opus, mas o consumo alto tornou difícil manter como padrão.',
+				notes: [
+					{ kind: 'pos', text: 'Agents, Skills, Hooks e Sub-Agents muito fortes' },
+					{ kind: 'pos', text: 'memória persistente entre sessões' },
+					{ kind: 'pos', text: 'boa integração entre desktop, pastas locais e nuvem' },
+					{ kind: 'neg', text: 'sessões grandes consomem cota rápido' },
+					{ kind: 'neg', text: 'desktop ainda tem muitos bugs' },
+				],
+			},
+			{
+				name: 'OpenCode',
+				meta: 'teste de modelos',
+				icon: icons.opencode,
+				tags: ['cli', 'open source', 'multi-modelo'],
+				description: 'uso principalmente para testar modelos novos, especialmente open source.',
+				notes: [
+					{ kind: 'pos', text: 'código aberto' },
+					{ kind: 'pos', text: 'grande variedade de conexões' },
+					{ kind: 'pos', text: 'bom para experimentar modelos open source' },
+					{ kind: 'neg', text: 'menos ajuste fino por modelo' },
+				],
+			},
+		],
+	},
+	{
+		title: 'Assinaturas',
+		items: [
+			{
+				name: 'OpenAI',
+				meta: 'Pro',
+				icon: icons.openai,
+				tags: ['codex', 'chatgpt'],
+				description: 'uso hoje o plano de US$100 e os limites têm sido muito generosos. dá para trabalhar diariamente, inclusive com worktrees em paralelo, sem bater na cota.',
+				notes: [
+					{ kind: 'pos', text: 'melhor assinatura entre qualidade e volume de uso' },
+					{ kind: 'pos', text: 'serve o Codex e o ecossistema da OpenAI' },
+					{ kind: 'pos', text: 'também pode alimentar outros harnesses' },
+					{ kind: 'neg', text: 'fica limitado aos modelos GPT' },
+				],
+			},
+			{
+				name: 'Claude',
+				meta: 'Max',
+				icon: icons.claude,
+				tags: ['claude code', 'desktop'],
+				description: 'uso o plano Max de US$100. o ponto forte é o ecossistema integrado: chat, cowork e código ficam no mesmo aplicativo.',
+				notes: [
+					{ kind: 'pos', text: 'ferramentas ficam fáceis de acessar' },
+					{ kind: 'pos', text: 'bom fluxo entre app desktop, arquivos locais e nuvem' },
+					{ kind: 'neg', text: 'modelos caros fazem a cota ir rápido' },
+					{ kind: 'neg', text: 'assinatura fica mais restrita ao ecossistema Claude' },
+				],
+			},
+			{
+				name: 'Cursor',
+				meta: 'Pro',
+				icon: icons.cursor,
+				tags: ['ide', 'agent', 'multi-modelo'],
+				description: 'uso o plano Pro de US$20. vale pela integração forte com a IDE, pelos agentes em nuvem e por permitir comparar modelos no mesmo fluxo.',
+				notes: [
+					{ kind: 'pos', text: 'editor sólido' },
+					{ kind: 'pos', text: 'bons agentes em nuvem' },
+					{ kind: 'pos', text: 'bom conjunto de modelos' },
+					{ kind: 'pos', text: 'funciona melhor com modelos próprios do Cursor' },
+					{ kind: 'pos', text: 'tem CLI, embora eu ainda não use' },
+					{ kind: 'neg', text: 'volume de uso incluído é bem menor que nas outras assinaturas' },
+				],
+			},
+		],
+	},
+	{
+		title: 'Experimentação',
+		items: [
+			{
+				name: 'Kimi K2.5 Turbo',
+				meta: 'via Fireworks',
+				icon: icons.kimi,
+				tags: ['modelo', 'open source', 'rápido'],
+				description: 'tenho gostado de testar pelo Fireworks. não está no nível de Opus ou GPT-5.5, mas é inteligente e a versão Turbo deixa a conversa bem fluida.',
+				notes: [
+					{ kind: 'pos', text: 'muito rápido na versão Turbo' },
+					{ kind: 'pos', text: 'bom para conversar e testar ideias' },
+					{ kind: 'pos', text: 'Firepass pode virar uma assinatura interessante' },
+					{ kind: 'neg', text: 'ainda não chega no nível dos modelos principais' },
+				],
+			},
+			{
+				name: 'Gemini',
+				meta: 'visão e documentos',
+				icon: icons.gemini,
+				tags: ['google', 'multimodal', 'pdf'],
+				description: 'tentei usar várias vezes para desenvolvimento, mas nesse fluxo ele quase não funciona para mim. gosto mais para visão, vídeos e PDFs.',
+				notes: [
+					{ kind: 'pos', text: 'muito bom com fotos e vídeos' },
+					{ kind: 'pos', text: 'bom cenário para PDFs' },
+					{ kind: 'neg', text: 'quase inutilizável para desenvolvimento' },
+					{ kind: 'neg', text: 'experiência varia muito conforme o harness - cursor pode entregar melhor experiência' },
+				],
+			},
+			{
+				name: 'Fio',
+				meta: 'harness em Go',
+				icon: icons.go,
+				tags: ['go', 'cli', 'aprendizado'],
+				description: 'harness próprio que venho desenvolvendo em Go para entender melhor como agentes interagem com modelos, ferramentas e contexto.',
+				notes: [
+					{ kind: 'pos', text: 'bom projeto para aprender arquitetura de agentes' },
+					{ kind: 'pos', text: 'Go funciona bem para CLI simples' },
+					{ kind: 'neg', text: 'ainda é mais estudo do que ferramenta principal' },
+				],
+			},
+		],
+	},
+];
+---
+
+<BaseLayout title="Ferramentas" description="ferramentas que uso e escolhas que ainda fazem sentido.">
+	<PageHeader
+		title="ferramentas"
+		description="ferramentas que uso e escolhas que ainda fazem sentido."
+	>
+		<button
+			slot="actions"
+			type="button"
+			id="toggle-all"
+			class="section-toggle ml-auto"
+			aria-expanded="true"
+			aria-label="alternar todas as seções"
+		>
+			<svg aria-hidden="true" viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+				<path d="M3.5 6L8 10.5L12.5 6" />
+			</svg>
+		</button>
+	</PageHeader>
+
+	<div class="grid gap-10 sm:gap-12">
+		{sections.map((section, sectionIndex) => (
+			<section class="page-rule pt-7 sm:pt-9 section-collapsible" data-collapsed="false">
+				<header class="mb-5 flex items-center gap-3.5">
+					<span class="font-mono text-xs text-accent sm:text-sm">{String(sectionIndex + 1).padStart(2, '0')}</span>
+					<h2 class="font-mono text-xs font-semibold uppercase tracking-[0.24em] text-muted sm:text-sm">{section.title}</h2>
+					<button
+						type="button"
+						class="section-toggle ml-auto"
+						aria-expanded="true"
+						aria-label={`alternar seção ${section.title}`}
+					>
+						<svg aria-hidden="true" viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+							<path d="M3.5 6L8 10.5L12.5 6" />
+						</svg>
+					</button>
+				</header>
+				<div class="section-body">
+					{section.items.map((item, itemIndex) => (
+						<article class="grid gap-2.5 border-b first:pt-0 last:border-0 hairline py-4 sm:grid-cols-[5.5rem_1fr] sm:gap-5">
+							<div class="hidden items-start font-mono text-xs text-subtle sm:flex sm:text-sm">
+								<span>{String(itemIndex + 1).padStart(2, '0')}</span>
+								<span class="flex flex-1 justify-center pl-2.5 sm:pl-5">
+									{item.icon && (
+										<>
+											<img src={item.icon.light} alt="" class="item-icon item-icon-light" decoding="async" />
+											<img src={item.icon.dark} alt="" class="item-icon item-icon-dark" decoding="async" />
+										</>
+									)}
+								</span>
+							</div>
+							<div class="min-w-0">
+								<div class="flex flex-wrap items-baseline gap-x-2.5 gap-y-1">
+									<h3 class="text-lg font-semibold text-text sm:text-[1.25rem]">{item.name}</h3>
+									<span class="text-xs text-subtle sm:text-sm">{item.meta}</span>
+								</div>
+								{item.tags && item.tags.length > 0 && (
+									<div class="mt-2 flex flex-wrap items-center gap-1.5 font-mono text-xs text-accent">
+										{item.tags.map((tag, tagIndex) => (
+											<>
+												{tagIndex > 0 && <span aria-hidden="true" class="text-subtle">·</span>}
+												<span>{tag}</span>
+											</>
+										))}
+									</div>
+								)}
+								{item.effort && (
+									<div class="mt-2 flex flex-wrap items-center gap-x-1.5 gap-y-1 font-mono text-xs">
+										<span class="text-text">raciocínio:</span>
+										{effortLevels.map((level, levelIndex) => (
+											<>
+												{levelIndex > 0 && <span aria-hidden="true" class="text-subtle">·</span>}
+												<span class={effortClass(levelIndex, item.effort!)}>
+													{level}
+												</span>
+											</>
+										))}
+									</div>
+								)}
+								<p class="mt-2.5 text-sm leading-[1.375rem] text-muted sm:text-base">{item.description}</p>
+								<ul class="mt-2.5 grid gap-1.5 text-sm leading-[1.375rem] text-subtle">
+									{item.notes.map((note) => (
+										<li class="flex gap-2">
+											<span aria-hidden="true" class="text-accent">{note.kind === 'pos' ? '+' : '-'}</span>
+											<span>{note.text}</span>
+										</li>
+									))}
+								</ul>
+							</div>
+						</article>
+					))}
+				</div>
+			</section>
+		))}
+	</div>
+
+	<style is:global>
+		.item-icon {
+			width: 2.2rem;
+			height: 2.2rem;
+			display: block;
+			flex-shrink: 0;
+		}
+		[data-theme='dark'] .item-icon-light,
+		[data-theme='light'] .item-icon-dark {
+			display: none;
+		}
+	</style>
+
+	<script>
+		const sections = Array.from(document.querySelectorAll('.section-collapsible'));
+		const toggleAll = document.getElementById('toggle-all');
+
+		const setSection = (section: Element, collapsed: boolean) => {
+			section.setAttribute('data-collapsed', String(collapsed));
+			const t = section.querySelector('.section-toggle');
+			t?.setAttribute('aria-expanded', String(!collapsed));
+		};
+
+		const syncToggleAll = () => {
+			if (!toggleAll) return;
+			const allCollapsed = sections.every((s) => s.getAttribute('data-collapsed') === 'true');
+			toggleAll.setAttribute('aria-expanded', String(!allCollapsed));
+			toggleAll.dataset.collapsed = String(allCollapsed);
+		};
+
+		sections.forEach((section) => {
+			const toggle = section.querySelector('.section-toggle');
+			if (!(toggle instanceof HTMLButtonElement)) return;
+			toggle.addEventListener('click', () => {
+				const collapsed = section.getAttribute('data-collapsed') === 'true';
+				setSection(section, !collapsed);
+				syncToggleAll();
+			});
+		});
+
+		toggleAll?.addEventListener('click', () => {
+			const allCollapsed = sections.every((s) => s.getAttribute('data-collapsed') === 'true');
+			sections.forEach((s) => setSection(s, !allCollapsed));
+			syncToggleAll();
+		});
+	</script>
+</BaseLayout>

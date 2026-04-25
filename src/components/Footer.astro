@@ -1,0 +1,18 @@
+---
+import { secondaryNav, socialLinks } from '../lib/site';
+---
+
+<footer class="shell border-t hairline pt-1.5 pb-6">
+	<div class="flex flex-wrap items-center gap-x-2.5 gap-y-2 text-xs lowercase text-subtle sm:text-sm">
+		{secondaryNav.map((item) => (
+			<a class="transition hover:text-accent" href={item.href}>{item.label}</a>
+		))}
+		<span aria-hidden="true" class="text-line">|</span>
+		{socialLinks.map((item, index) => (
+			<>
+				{index > 0 && <span aria-hidden="true" class="text-line">·</span>}
+				<a class="transition hover:text-accent" href={item.href}>{item.label}</a>
+			</>
+		))}
+	</div>
+</footer>

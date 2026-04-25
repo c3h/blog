@@ -1,0 +1,19 @@
+---
+import DecryptText from './DecryptText.astro';
+
+type Props = {
+	title: string;
+	description?: string;
+};
+
+const { title, description } = Astro.props;
+---
+
+<section class="page-header">
+	<div class="flex items-center gap-4">
+		<DecryptText as="h1" text={title} class="section-title text-[2rem] sm:text-[2.75rem]" />
+		<slot name="actions" />
+	</div>
+	{description && <p class="page-description">{description}</p>}
+	<slot />
+</section>

@@ -1,0 +1,22 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHeader from '../components/PageHeader.astro';
+import LinkCard from '../components/LinkCard.astro';
+import { projects } from '../data/projects';
+---
+
+<BaseLayout title="Projetos" description="coisas que construí por curiosidade, estudo ou pesquisa.">
+	<PageHeader title="projetos" description="coisas que construí por curiosidade, estudo ou pesquisa." />
+
+	<section class="page-list">
+		{projects.map((project) => (
+			<LinkCard
+				title={project.title}
+				meta={`${project.role} · ${project.period}`}
+				description={project.description}
+				href={project.href}
+				pills={project.stack}
+			/>
+		))}
+	</section>
+</BaseLayout>

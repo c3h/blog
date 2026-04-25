@@ -1,0 +1,15 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PageHeader from '../../components/PageHeader.astro';
+import PostList from '../../components/PostList.astro';
+import { getPublishedPosts } from '../../lib/posts';
+
+const posts = await getPublishedPosts();
+---
+
+<BaseLayout title="Blog" description="notas sobre o que aprendo construindo software.">
+	<PageHeader title="blog" description="notas sobre o que aprendo construindo software." />
+	<section>
+		<PostList posts={posts} />
+	</section>
+</BaseLayout>

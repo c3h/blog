@@ -1,0 +1,22 @@
+---
+title: "escrita local-first para blogs técnicos"
+description: "por que escolhi MDX, content collections e build estático."
+date: 2026-02-12
+---
+
+O caminho mais fácil para escrever mais é reduzir o atrito entre ter uma ideia e publicá-la. Isso já descarta CMS hospedados, painéis de administração, bancos de dados e plataformas fechadas. Qualquer servidor entre o autor e o texto pesa quando o post é curto e a ideia ainda está fresca.
+
+A alternativa é escrever local-first. Os textos ficam em arquivos no repositório, versionados junto com o código, e qualquer editor que abra Markdown serve para escrever. O Obsidian cumpre bem esse papel — dá para redigir em qualquer lugar e mover o texto para o repositório quando estiver pronto, sem reformatação. Trocar de hospedagem, ou de stack inteira, vira uma operação simples.
+
+MDX entra porque permite manter o conteúdo em Markdown puro na maior parte, com a opção de inserir um componente quando o exemplo precisa de algo além do texto corrido.
+
+Astro com content collections resolve a parte chata: validar o frontmatter no build. Título, descrição e data deixam de ser um combinado informal e viram contrato verificável. Esquecer um campo quebra o build, não a página em produção.
+
+## o fluxo
+
+- criar um arquivo em `src/content/posts`
+- preencher título, descrição e data
+- escrever o texto
+- deixar o build validar links, rotas e metadados
+
+A estrutura aguenta muito mais tempo do que parece. Enquanto escrever continuar barato, não há motivo para trocar.

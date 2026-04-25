@@ -1,0 +1,211 @@
+---
+import { ArrowRight, Search, X } from '@lucide/astro';
+import { projects } from '../data/projects';
+import { getPublishedPosts, postHref } from '../lib/posts';
+import { navItems } from '../lib/site';
+
+type CommandType = 'page' | 'post' | 'project';
+type Command = {
+	title: string;
+	subtitle: string;
+	href: string;
+	type: CommandType;
+	haystack: string;
+};
+
+const toCommand = (title: string, subtitle: string, href: string, type: CommandType): Command => ({
+	title,
+	subtitle,
+	href,
+	type,
+	haystack: `${title} ${subtitle} ${type}`.toLowerCase(),
+});
+
+const posts = await getPublishedPosts();
+const commands: Command[] = [
+	...navItems.map((item) => toCommand(item.label, `Ir para ${item.href}`, item.href, 'page')),
+	...posts.map((post) => toCommand(post.data.title, post.data.description, postHref(post), 'post')),
+	...projects.map((project) => toCommand(project.title, project.description, project.href, 'project')),
+];
+
+const navShortcuts = Object.fromEntries(navItems.map((item) => [item.key, item.href]));
+---
+
+<div data-command-root class="pointer-events-none fixed inset-0 z-50 hidden">
+	<div data-command-backdrop class="absolute inset-0 bg-bg/72 opacity-0 backdrop-blur-sm transition"></div>
+	<div class="shell relative pt-3 sm:pt-[12vh]">
+		<div
+			data-command-panel
+			class="mx-auto max-h-[calc(100dvh-6.5rem)] max-w-2xl translate-y-2 overflow-hidden rounded-xl border hairline bg-panel/96 opacity-0 shadow-2xl shadow-black/30 transition sm:max-h-none"
+		>
+			<div class="flex items-center gap-2 border-b hairline px-3 py-2">
+				<Search size={17} class="text-muted" />
+				<input
+					data-command-input
+					aria-label="Buscar páginas, posts e projetos"
+					class="w-full bg-transparent text-sm text-text outline-none placeholder:text-subtle"
+					placeholder="Buscar páginas, posts e projetos..."
+					autocomplete="off"
+					spellcheck="false"
+				/>
+				<span class="kbd hidden sm:inline">esc</span>
+				<button
+					type="button"
+					data-command-close
+					class="-mr-1 inline-grid size-8 shrink-0 place-items-center rounded-md text-muted transition hover:bg-bg-soft hover:text-accent sm:hidden"
+					aria-label="Fechar busca"
+				>
+					<X size={18} />
+				</button>
+			</div>
+			<div data-command-list class="max-h-[calc(100dvh-11rem)] overflow-y-auto p-1.5 sm:max-h-[55vh]" role="listbox"></div>
+			<template data-command-template>
+				<a class="group flex items-center justify-between gap-2.5 rounded-lg px-2 py-2 transition hover:bg-bg-soft" role="option">
+					<span class="min-w-0">
+						<span data-title class="block truncate text-sm text-text"></span>
+						<span data-subtitle class="mt-0.5 block truncate text-xs text-muted"></span>
+					</span>
+					<span class="flex items-center gap-1.5 text-xs text-subtle">
+						<span data-type class="font-mono"></span>
+						<ArrowRight size={14} class="transition group-hover:translate-x-0.5 group-hover:text-accent" />
+					</span>
+				</a>
+			</template>
+		</div>
+	</div>
+</div>
+
+<style>
+	[data-command-input]:focus-visible {
+		outline: none;
+	}
+</style>
+
+<script is:inline define:vars={{ commands, navShortcuts }}>
+	const root = document.querySelector('[data-command-root]');
+	const backdrop = document.querySelector('[data-command-backdrop]');
+	const panel = document.querySelector('[data-command-panel]');
+	const input = document.querySelector('[data-command-input]');
+	const list = document.querySelector('[data-command-list]');
+	const template = document.querySelector('[data-command-template]');
+	const openButtons = document.querySelectorAll('[data-command-open]');
+	const closeButtons = document.querySelectorAll('[data-command-close]');
+	const MAX_RESULTS = 9;
+	let selected = 0;
+	let visible = false;
+	let filtered = commands;
+	let nodes = [];
+	let hideTimeout = null;
+
+	const isTyping = () => {
+		const el = document.activeElement;
+		return el instanceof HTMLInputElement || el instanceof HTMLTextAreaElement || el?.getAttribute('contenteditable') === 'true';
+	};
+
+	const updateSelection = (next) => {
+		if (next === selected) return;
+		nodes[selected]?.classList.remove('bg-bg-soft');
+		nodes[selected]?.setAttribute('aria-selected', 'false');
+		selected = next;
+		nodes[selected]?.classList.add('bg-bg-soft');
+		nodes[selected]?.setAttribute('aria-selected', 'true');
+	};
+
+	const render = () => {
+		if (!list || !template) return;
+		list.replaceChildren();
+		nodes = [];
+		filtered.slice(0, MAX_RESULTS).forEach((command, index) => {
+			const node = template.content.firstElementChild.cloneNode(true);
+			node.href = command.href;
+			node.dataset.commandItem = String(index);
+			node.setAttribute('aria-selected', String(index === selected));
+			node.querySelector('[data-title]').textContent = command.title;
+			node.querySelector('[data-subtitle]').textContent = command.subtitle;
+			node.querySelector('[data-type]').textContent = command.type;
+			if (index === selected) node.classList.add('bg-bg-soft');
+			node.addEventListener('mouseenter', () => updateSelection(index));
+			list.append(node);
+			nodes.push(node);
+		});
+		if (!filtered.length) {
+			const empty = document.createElement('p');
+			empty.className = 'px-2 py-6 text-center text-xs text-muted';
+			empty.textContent = 'Nenhum resultado encontrado.';
+			list.append(empty);
+		}
+	};
+
+	const filter = () => {
+		const query = input.value.trim().toLowerCase();
+		filtered = query ? commands.filter((command) => command.haystack.includes(query)) : commands;
+		selected = 0;
+		render();
+	};
+
+	const open = () => {
+		visible = true;
+		if (hideTimeout) {
+			clearTimeout(hideTimeout);
+			hideTimeout = null;
+		}
+		root.classList.remove('hidden', 'pointer-events-none');
+		requestAnimationFrame(() => {
+			backdrop.classList.remove('opacity-0');
+			panel.classList.remove('translate-y-2', 'opacity-0');
+			input.focus();
+		});
+		filter();
+	};
+
+	const close = () => {
+		visible = false;
+		backdrop.classList.add('opacity-0');
+		panel.classList.add('translate-y-2', 'opacity-0');
+		hideTimeout = setTimeout(() => {
+			root.classList.add('hidden', 'pointer-events-none');
+			hideTimeout = null;
+		}, 160);
+	};
+
+	openButtons.forEach((button) => button.addEventListener('click', open));
+	closeButtons.forEach((button) => button.addEventListener('click', close));
+	root.addEventListener('mousedown', (event) => {
+		if (!panel.contains(event.target)) close();
+	});
+	input.addEventListener('input', filter);
+
+	document.addEventListener('keydown', (event) => {
+		const key = event.key.toLowerCase();
+		const meta = event.metaKey || event.ctrlKey;
+
+		if (meta && key === 'k') {
+			event.preventDefault();
+			visible ? close() : open();
+			return;
+		}
+
+		if (!visible && !isTyping()) {
+			if (event.key === '/') {
+				event.preventDefault();
+				open();
+				return;
+			}
+			if (navShortcuts[key]) window.location.href = navShortcuts[key];
+		}
+
+		if (!visible) return;
+		if (event.key === 'Escape') close();
+		if (event.key === 'ArrowDown' || (meta && key === 'j')) {
+			event.preventDefault();
+			updateSelection(Math.min(selected + 1, Math.min(filtered.length, MAX_RESULTS) - 1));
+		}
+		if (event.key === 'ArrowUp') {
+			event.preventDefault();
+			updateSelection(Math.max(selected - 1, 0));
+		}
+		if (event.key === 'Enter' && filtered[selected]) {
+			window.location.href = filtered[selected].href;
+		}
+	});
+</script>

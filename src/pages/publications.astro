@@ -1,0 +1,21 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHeader from '../components/PageHeader.astro';
+import LinkCard from '../components/LinkCard.astro';
+import { publications } from '../data/publications';
+---
+
+<BaseLayout title="Publicações" description="artigos publicados em conferências e periódicos.">
+	<PageHeader title="publicações" description="artigos publicados em conferências e periódicos." />
+
+	<section class="page-list">
+		{publications.map((publication) => (
+			<LinkCard
+				title={publication.title}
+				meta={`${publication.authors} · ${publication.venue} · ${publication.country} · ${publication.year}`}
+				description={publication.description}
+				href={publication.href}
+			/>
+		))}
+	</section>
+</BaseLayout>

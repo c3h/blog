@@ -1,0 +1,33 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import { formatDate, postHref } from '../lib/posts';
+
+type Props = {
+	posts: CollectionEntry<'posts'>[];
+	compact?: boolean;
+};
+
+const { posts, compact = false } = Astro.props;
+---
+
+<div class="space-y-5">
+	{posts.map((post) => (
+		<a
+			href={postHref(post)}
+			class="group grid gap-1.5 transition sm:grid-cols-[7.5rem_1fr] sm:gap-4"
+		>
+			<time
+				class="text-sm lowercase text-subtle transition group-hover:text-muted sm:text-base sm:pt-0.5"
+				datetime={post.data.date.toISOString()}
+			>
+				{formatDate(post.data.date)}
+			</time>
+			<span class="min-w-0">
+				<span class="block text-base leading-snug text-text transition group-hover:text-accent sm:text-lg">
+					{post.data.title}
+				</span>
+				{!compact && <span class="mt-1.5 block max-w-2xl text-sm leading-[1.375rem] text-muted">{post.data.description}</span>}
+			</span>
+		</a>
+	))}
+</div>

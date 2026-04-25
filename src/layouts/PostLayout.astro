@@ -1,0 +1,115 @@
+---
+import BaseLayout from './BaseLayout.astro';
+import DecryptText from '../components/DecryptText.astro';
+import { ArrowLeft } from '@lucide/astro';
+import type { CollectionEntry } from 'astro:content';
+import { formatLongDate, postHref, readingTime } from '../lib/posts';
+
+type Props = {
+	post: CollectionEntry<'posts'>;
+	previousPost?: CollectionEntry<'posts'>;
+	nextPost?: CollectionEntry<'posts'>;
+};
+
+const { post, previousPost, nextPost } = Astro.props;
+const prevHref = previousPost ? postHref(previousPost) : null;
+const nextHref = nextPost ? postHref(nextPost) : null;
+---
+
+<BaseLayout title={post.data.title} description={post.data.description}>
+	<article>
+		<a href="/blog/" class="mb-9 inline-flex items-center gap-1.5 text-sm text-subtle transition hover:text-accent sm:mb-10 sm:text-base">
+			<ArrowLeft size={18} class="transition group-hover:-translate-x-0.5" /> voltar
+		</a>
+		<header>
+			<DecryptText
+				as="h1"
+				text={post.data.title}
+				class="section-title max-w-4xl text-balance text-[2rem] sm:text-[2.75rem]"
+			/>
+			<div class="mt-5 flex flex-wrap items-center gap-2 text-sm text-subtle sm:text-base">
+				<time datetime={post.data.date.toISOString()}>{formatLongDate(post.data.date)}</time>
+				<span aria-hidden="true">·</span>
+				<span>{readingTime(post.body ?? '')} min de leitura</span>
+			</div>
+		</header>
+		<div class="prose-post mt-6 max-w-3xl sm:mt-8">
+			<slot />
+		</div>
+		{
+			(previousPost || nextPost) && (
+				<nav
+					aria-label="Navegação entre posts"
+					class="mt-6 grid gap-2 text-sm text-subtle sm:mt-8 sm:grid-cols-2 sm:gap-4 sm:text-base"
+				>
+					<div>
+						{previousPost && (
+								<a href={prevHref} class="group block transition hover:text-accent">
+									<span class="flex items-baseline gap-1.5 leading-none">
+										<kbd class="hidden font-sans opacity-60 sm:inline">[←]</kbd>
+										<span>anterior</span>
+									</span>
+									<span class="mt-1 block leading-tight lowercase">{previousPost.data.title}</span>
+								</a>
+						)}
+					</div>
+					<div class="sm:text-right">
+						{nextPost && (
+								<a href={nextHref} class="group block transition hover:text-accent">
+									<span class="flex items-baseline gap-1.5 leading-none sm:justify-end">
+										<span>próximo</span>
+										<kbd class="hidden font-sans opacity-60 sm:inline">[→]</kbd>
+									</span>
+								<span class="mt-1 block leading-tight lowercase sm:text-right">{nextPost.data.title}</span>
+							</a>
+						)}
+					</div>
+				</nav>
+			)
+		}
+	</article>
+</BaseLayout>
+
+<script is:inline define:vars={{ prevHref, nextHref }}>
+	document.querySelectorAll('.prose-post pre').forEach((pre) => {
+		const codeEl = pre.querySelector('code');
+		if (!codeEl) return;
+		const button = document.createElement('button');
+		button.type = 'button';
+		button.className = 'code-copy';
+		button.setAttribute('aria-label', 'copiar código');
+		button.textContent = 'copiar';
+		let resetTimer;
+		button.addEventListener('click', async () => {
+			clearTimeout(resetTimer);
+			try {
+				await navigator.clipboard.writeText(codeEl.innerText);
+				button.dataset.copied = 'true';
+				button.textContent = 'copiado';
+				resetTimer = setTimeout(() => {
+					button.removeAttribute('data-copied');
+					button.textContent = 'copiar';
+				}, 1400);
+			} catch {
+				button.textContent = 'erro';
+				resetTimer = setTimeout(() => (button.textContent = 'copiar'), 1400);
+			}
+		});
+		pre.appendChild(button);
+	});
+
+	if (prevHref || nextHref) {
+		document.addEventListener('keydown', (event) => {
+			if (event.metaKey || event.ctrlKey || event.altKey || event.shiftKey) return;
+			const target = event.target;
+			if (target?.closest('input, textarea, select, [contenteditable="true"]')) return;
+			if (event.key === 'ArrowLeft' && prevHref) {
+				event.preventDefault();
+				window.location.href = prevHref;
+			} else if (event.key === 'ArrowRight' && nextHref) {
+				event.preventDefault();
+				window.location.href = nextHref;
+			}
+		});
+	}
+</script>

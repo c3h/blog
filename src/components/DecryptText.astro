@@ -1,0 +1,63 @@
+---
+export interface Props {
+	as?: 'h1' | 'h2' | 'h3' | 'span' | 'div' | 'p';
+	text: string;
+	class?: string;
+	id?: string;
+}
+
+const { as: Tag = 'h1', text, class: className, id } = Astro.props;
+---
+
+<Tag id={id} class={className} aria-label={text}>
+	<span class="decrypt-host">
+		<span class="decrypt-measure" aria-hidden="true">{text}</span>
+		<span class="decrypt-output" data-decrypt={text} aria-hidden="true">{text}</span>
+	</span>
+</Tag>
+
+<script>
+	const CHARS = 'abcdefghijklmnopqrstuvwxyz0123456789!@#$%&*?<>/\\';
+	const FRAME_DELAY = 30;
+	const REVEAL_STEP = 1;
+	const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+	const timers = new WeakMap<HTMLElement, number>();
+
+	function runDecrypt(el: HTMLElement) {
+		const target = el.dataset.decrypt ?? el.textContent ?? '';
+		const pending = timers.get(el);
+		if (pending !== undefined) clearTimeout(pending);
+		if (reduceMotion) {
+			el.textContent = target;
+			return;
+		}
+		let frame = 0;
+		const tick = () => {
+			const revealed = Math.min(target.length, Math.floor(frame / REVEAL_STEP));
+			let out = '';
+			for (let i = 0; i < target.length; i++) {
+				if (i < revealed || target[i] === ' ') {
+					out += target[i];
+				} else {
+					out += CHARS[Math.floor(Math.random() * CHARS.length)];
+				}
+			}
+			el.textContent = out;
+			if (revealed < target.length) {
+				frame++;
+				timers.set(el, window.setTimeout(tick, FRAME_DELAY));
+			} else {
+				timers.delete(el);
+				el.textContent = target;
+			}
+		};
+		tick();
+	}
+
+	document.querySelectorAll<HTMLElement>('[data-decrypt]').forEach(runDecrypt);
+
+	document.addEventListener('decrypt:replay', (event) => {
+		const target = (event as CustomEvent<HTMLElement>).detail;
+		if (target instanceof HTMLElement) runDecrypt(target);
+	});
+</script>

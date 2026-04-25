@@ -1,0 +1,122 @@
+---
+import '../styles/global.css';
+import { Font } from 'astro:assets';
+import CommandPalette from '../components/CommandPalette.astro';
+import Footer from '../components/Footer.astro';
+import Header from '../components/Header.astro';
+import { site } from '../lib/site';
+
+type Props = {
+	title?: string;
+	description?: string;
+	image?: string;
+};
+
+const {
+	title = site.title,
+	description = site.description,
+	image,
+} = Astro.props;
+
+const canonical = new URL(Astro.url.pathname, site.url);
+const pageTitle = title === site.title ? title : `${title} - ${site.author}`;
+---
+
+<!doctype html>
+<html lang="pt-BR" data-theme="dark">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<meta name="generator" content={Astro.generator} />
+		<title>{pageTitle}</title>
+		<meta name="description" content={description} />
+		<link rel="canonical" href={canonical} />
+		<link rel="icon" type="image/svg+xml" href="/icon.svg" />
+		<link rel="alternate" type="application/rss+xml" title={site.title} href="/rss.xml" />
+		<Font cssVariable="--font-lora" preload />
+		<meta property="og:type" content="website" />
+		<meta property="og:site_name" content={site.author} />
+		<meta property="og:title" content={pageTitle} />
+		<meta property="og:description" content={description} />
+		<meta property="og:url" content={canonical} />
+		{image && <meta property="og:image" content={new URL(image, site.url)} />}
+		<meta name="twitter:card" content={image ? 'summary_large_image' : 'summary'} />
+		<meta name="theme-color" content="#111111" />
+		<style is:inline>
+			html,
+			body {
+				background: #111111;
+			}
+		</style>
+		<script is:inline>
+			const savedTheme = localStorage.getItem('theme');
+			document.documentElement.dataset.theme = savedTheme || 'dark';
+		</script>
+	</head>
+	<body>
+		<Header />
+		<main class="shell pt-9 pb-10 sm:pt-12 sm:pb-12">
+			<slot />
+		</main>
+		<Footer />
+		<CommandPalette />
+		<button
+			type="button"
+			id="back-to-top"
+			class="back-to-top"
+			aria-label="voltar ao topo"
+			data-visible="false"
+		>
+			<svg aria-hidden="true" viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+				<path d="M8 13V3" />
+				<path d="M3.5 7.5L8 3l4.5 4.5" />
+			</svg>
+		</button>
+		<script is:inline>
+			(() => {
+				const btn = document.getElementById('back-to-top');
+				if (!btn) return;
+				const threshold = () => window.innerHeight * 0.8;
+				let ticking = false;
+				let visible = false;
+				const update = () => {
+					const next = window.scrollY > threshold();
+					if (next !== visible) {
+						visible = next;
+						btn.dataset.visible = String(next);
+					}
+					ticking = false;
+				};
+				const onScroll = () => {
+					if (!ticking) {
+						requestAnimationFrame(update);
+						ticking = true;
+					}
+				};
+				window.addEventListener('scroll', onScroll, { passive: true });
+				update();
+				btn.addEventListener('click', () => {
+					const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+					window.scrollTo({ top: 0, behavior: reduced ? 'auto' : 'smooth' });
+				});
+			})();
+		</script>
+		<script is:inline>
+			const themeButton = document.querySelector('[data-theme-toggle]');
+			const lightIcons = document.querySelectorAll('.light-icon');
+			const darkIcons = document.querySelectorAll('.dark-icon');
+			const syncThemeIcon = () => {
+				const isLight = document.documentElement.dataset.theme === 'light';
+				lightIcons.forEach((icon) => icon.classList.toggle('hidden', isLight));
+				darkIcons.forEach((icon) => icon.classList.toggle('hidden', !isLight));
+			};
+			themeButton?.addEventListener('click', () => {
+				const next = document.documentElement.dataset.theme === 'light' ? 'dark' : 'light';
+				document.documentElement.dataset.theme = next;
+				localStorage.setItem('theme', next);
+				syncThemeIcon();
+			});
+			syncThemeIcon();
+		</script>
+	</body>
+</html>

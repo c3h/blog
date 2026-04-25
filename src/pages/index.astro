@@ -1,0 +1,72 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import DecryptText from '../components/DecryptText.astro';
+import LinkCard from '../components/LinkCard.astro';
+import PostList from '../components/PostList.astro';
+import SectionHeader from '../components/SectionHeader.astro';
+import { projects } from '../data/projects';
+import { publications } from '../data/publications';
+import { getPublishedPosts } from '../lib/posts';
+
+const posts = (await getPublishedPosts()).slice(0, 3);
+const featuredProjects = projects.slice(0, 2);
+const featuredPublications = publications.slice(0, 3);
+---
+
+<BaseLayout>
+	<section class="page-header">
+		<DecryptText
+			as="h1"
+			id="hero-title"
+			text="daniel gimigliano"
+			class="text-[2.4rem] font-bold leading-[1.1] tracking-[-0.01em] text-text sm:text-[3.3rem]"
+		/>
+		<p class="page-description !mt-3">
+			engenheiro de software · são paulo, brasil
+		</p>
+		<p class="page-description">
+			construo produtos web do zero, da arquitetura ao deploy. transformo problemas em software rápido, legível e fácil de manter.
+		</p>
+	</section>
+
+	<section class="page-rule py-10 sm:py-12">
+		<SectionHeader title="blog" href="/blog/" linkLabel="todos os posts" />
+		<PostList posts={posts} />
+	</section>
+
+	<section class="page-rule py-10 sm:py-12">
+		<SectionHeader title="projetos" href="/projects/" linkLabel="todos os projetos" />
+		<div class="-mt-4 flex flex-col gap-2">
+			{featuredProjects.map((project) => (
+				<LinkCard
+					title={project.title}
+					meta={project.stack.join(' · ')}
+					description={project.description}
+					href={project.href}
+					headingLevel="h3"
+					revealArrowOnHover
+				/>
+			))}
+		</div>
+	</section>
+
+	<section class="page-rule py-10 sm:py-12 [&>div]:!mb-0">
+		<SectionHeader title="ferramentas" href="/uses/" linkLabel="detalhes" />
+	</section>
+
+	<section class="page-rule pt-10 sm:pt-12">
+		<SectionHeader title="publicações" href="/publications/" linkLabel="todas as publicações" />
+		<div class="-mt-4 flex flex-col gap-2">
+			{featuredPublications.map((publication) => (
+				<LinkCard
+					title={publication.title}
+					meta={`${publication.authors} · ${publication.venue} · ${publication.country} · ${publication.year}`}
+					description={publication.description}
+					href={publication.href}
+					headingLevel="h3"
+					revealArrowOnHover
+				/>
+			))}
+		</div>
+	</section>
+</BaseLayout>
