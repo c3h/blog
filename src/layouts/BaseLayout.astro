@@ -23,7 +23,7 @@ const pageTitle = title === site.title ? title : `${title} - ${site.author}`;
 ---
 
 <!doctype html>
-<html lang="pt-BR" data-theme="dark">
+<html lang="pt-BR">
 	<head>
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -43,14 +43,23 @@ const pageTitle = title === site.title ? title : `${title} - ${site.author}`;
 		<meta name="twitter:card" content={image ? 'summary_large_image' : 'summary'} />
 		<meta name="theme-color" content="#111111" />
 		<style is:inline>
-			html,
-			body {
-				background: #111111;
-			}
+			:root[data-theme="dark"],
+			:root[data-theme="dark"] body { background: #111111; }
+			:root[data-theme="light"],
+			:root[data-theme="light"] body { background: #f7f8f6; }
 		</style>
 		<script is:inline>
-			const savedTheme = localStorage.getItem('theme');
-			document.documentElement.dataset.theme = savedTheme || 'dark';
+			(() => {
+				const stored = localStorage.getItem('theme');
+				const pref = stored === 'light' || stored === 'dark' ? stored : 'system';
+				const systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+				const effective = pref === 'system' ? (systemDark ? 'dark' : 'light') : pref;
+				const root = document.documentElement;
+				root.dataset.theme = effective;
+				root.dataset.themePref = pref;
+				const meta = document.querySelector('meta[name="theme-color"]');
+				if (meta) meta.setAttribute('content', effective === 'dark' ? '#111111' : '#f7f8f6');
+			})();
 		</script>
 	</head>
 	<body>
@@ -102,21 +111,39 @@ const pageTitle = title === site.title ? title : `${title} - ${site.author}`;
 			})();
 		</script>
 		<script is:inline>
-			const themeButton = document.querySelector('[data-theme-toggle]');
-			const lightIcons = document.querySelectorAll('.light-icon');
-			const darkIcons = document.querySelectorAll('.dark-icon');
-			const syncThemeIcon = () => {
-				const isLight = document.documentElement.dataset.theme === 'light';
-				lightIcons.forEach((icon) => icon.classList.toggle('hidden', isLight));
-				darkIcons.forEach((icon) => icon.classList.toggle('hidden', !isLight));
-			};
-			themeButton?.addEventListener('click', () => {
-				const next = document.documentElement.dataset.theme === 'light' ? 'dark' : 'light';
-				document.documentElement.dataset.theme = next;
-				localStorage.setItem('theme', next);
-				syncThemeIcon();
-			});
-			syncThemeIcon();
+			(() => {
+				const themeButton = document.querySelector('[data-theme-toggle]');
+				const themeColorMeta = document.querySelector('meta[name="theme-color"]');
+				const order = ['system', 'light', 'dark'];
+				const labels = {
+					system: 'Tema: automático',
+					light: 'Tema: claro',
+					dark: 'Tema: escuro',
+				};
+				const mql = window.matchMedia('(prefers-color-scheme: dark)');
+				const root = document.documentElement;
+				const currentPref = () => {
+					const stored = localStorage.getItem('theme');
+					return stored === 'light' || stored === 'dark' ? stored : 'system';
+				};
+				const apply = (pref) => {
+					const effective = pref === 'system' ? (mql.matches ? 'dark' : 'light') : pref;
+					root.dataset.theme = effective;
+					root.dataset.themePref = pref;
+					if (themeColorMeta) themeColorMeta.setAttribute('content', getComputedStyle(root).getPropertyValue('--bg').trim());
+					if (themeButton) themeButton.setAttribute('aria-label', labels[pref]);
+				};
+				apply(currentPref());
+				themeButton?.addEventListener('click', () => {
+					const next = order[(order.indexOf(currentPref()) + 1) % order.length];
+					if (next === 'system') localStorage.removeItem('theme');
+					else localStorage.setItem('theme', next);
+					apply(next);
+				});
+				mql.addEventListener('change', () => {
+					if (currentPref() === 'system') apply('system');
+				});
+			})();
 		</script>
 	</body>
 </html>

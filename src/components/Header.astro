@@ -1,5 +1,5 @@
 ---
-import { Moon, Search, Sun } from '@lucide/astro';
+import { Moon, Search, Sun, SunMoon } from '@lucide/astro';
 import { navItems } from '../lib/site';
 
 const currentPath = Astro.url.pathname;
@@ -40,11 +40,12 @@ const currentPath = Astro.url.pathname;
 			<button
 				type="button"
 				data-theme-toggle
-				class="inline-grid size-7 place-items-center rounded-md text-muted transition hover:bg-panel hover:text-accent"
+				class="theme-toggle inline-grid size-7 place-items-center rounded-md text-muted transition hover:bg-panel hover:text-accent"
 				aria-label="Alternar tema"
 			>
-				<Sun size={16} class="hidden dark-icon" />
-				<Moon size={16} class="light-icon" />
+				<SunMoon size={16} data-theme-icon="system" />
+				<Sun size={16} data-theme-icon="light" />
+				<Moon size={16} data-theme-icon="dark" />
 			</button>
 		</div>
 	</nav>

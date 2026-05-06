@@ -372,6 +372,16 @@ html[data-theme='light'] .prose-post pre.astro-code span {
 	margin-bottom: 0;
 }
 
+.theme-toggle [data-theme-icon] {
+	display: none;
+}
+
+:root[data-theme-pref="system"] .theme-toggle [data-theme-icon="system"],
+:root[data-theme-pref="light"] .theme-toggle [data-theme-icon="light"],
+:root[data-theme-pref="dark"] .theme-toggle [data-theme-icon="dark"] {
+	display: block;
+}
+
 .back-to-top {
 	position: fixed;
 	right: max(1.5rem, calc((100vw - 842px) / 2));
