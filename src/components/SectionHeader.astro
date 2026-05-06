@@ -14,7 +14,9 @@ const { title, href, linkLabel } = Astro.props;
 	<h2 class="section-title">{title}</h2>
 	{href && linkLabel && (
 		<a href={href} class="group inline-flex items-center gap-1 text-sm text-accent transition hover:text-text sm:text-base">
-			{linkLabel} <ArrowUpRight size={18} class="transition group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+			<span class="sm:hidden">ver mais</span>
+			<span class="hidden sm:inline">{linkLabel}</span>
+			<ArrowUpRight size={18} class="transition group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
 		</a>
 	)}
 </div>
