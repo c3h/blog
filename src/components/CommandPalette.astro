@@ -36,7 +36,7 @@ const navShortcuts = Object.fromEntries(navItems.map((item) => [item.key, item.h
 	<div class="shell relative pt-3 sm:pt-[12vh]">
 		<div
 			data-command-panel
-			class="mx-auto max-h-[calc(100dvh-6.5rem)] max-w-2xl translate-y-2 overflow-hidden rounded-xl border hairline bg-panel/96 opacity-0 shadow-2xl shadow-black/30 transition sm:max-h-none"
+			class="mx-auto max-h-[calc(100dvh-6.5rem)] max-w-2xl translate-y-2 overflow-hidden border hairline bg-panel/96 opacity-0 shadow-2xl shadow-black/30 transition sm:max-h-none"
 		>
 			<div class="flex items-center gap-2 border-b hairline px-3 py-2">
 				<Search size={17} class="text-muted" />
@@ -52,7 +52,7 @@ const navShortcuts = Object.fromEntries(navItems.map((item) => [item.key, item.h
 				<button
 					type="button"
 					data-command-close
-					class="-mr-1 inline-grid size-8 shrink-0 place-items-center rounded-md text-muted transition hover:bg-bg-soft hover:text-accent sm:hidden"
+					class="-mr-1 inline-grid size-8 shrink-0 place-items-center text-muted transition hover:bg-bg-soft hover:text-accent sm:hidden"
 					aria-label="Fechar busca"
 				>
 					<X size={18} />
@@ -60,7 +60,7 @@ const navShortcuts = Object.fromEntries(navItems.map((item) => [item.key, item.h
 			</div>
 			<div data-command-list class="max-h-[calc(100dvh-11rem)] overflow-y-auto p-1.5 sm:max-h-[55vh]" role="listbox"></div>
 			<template data-command-template>
-				<a class="group flex items-center justify-between gap-2.5 rounded-lg px-2 py-2 transition hover:bg-bg-soft" role="option">
+				<a class="group flex items-center justify-between gap-2.5 px-2 py-2 transition hover:bg-bg-soft" role="option">
 					<span class="min-w-0">
 						<span data-title class="block truncate text-sm text-text"></span>
 						<span data-subtitle class="mt-0.5 block truncate text-xs text-muted"></span>
