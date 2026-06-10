@@ -9,6 +9,15 @@ export type Project = {
 
 export const projects: Project[] = [
 	{
+		title: 'ito',
+		description:
+			'local, agent-native issue tracker for the terminal — a single binary, a central sqlite store, zero ceremony.',
+		href: 'https://github.com/c3h/ito',
+		role: 'autor',
+		period: '2026',
+		stack: ['go', 'sqlite', 'tui', 'ai agents'],
+	},
+	{
 		title: 'eca-adds-analysis',
 		description: 'supplementary code for ASCAT 2026 paper on correlating asynchrony degree with ECA dynamics under block-sequential updates.',
 		href: 'https://github.com/c3h/eca-adds-analysis',
