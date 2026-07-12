@@ -19,6 +19,7 @@ const effortClass = (level: number, effort: { typical: number; max: number }) =>
 type Item = {
 	name: string;
 	meta: string;
+	ended?: boolean;
 	icon?: Icon;
 	tags?: string[];
 	description: string;
@@ -76,6 +77,7 @@ const sections: Section[] = [
 			{
 				name: 'Fable 5',
 				meta: 'para planejar e revisar',
+				ended: true,
 				icon: icons.claude,
 				effort: { typical: 2, max: 3 },
 				description: 'se tornou modelo principal para planejar e revisar código.',
@@ -196,6 +198,7 @@ const sections: Section[] = [
 			{
 				name: 'Kimi K2.5 Turbo',
 				meta: 'via Fireworks',
+				ended: true,
 				icon: icons.kimi,
 				tags: ['modelo', 'open source', 'rápido'],
 				description: 'acredito ser o modelo open-source com maior potencial para ser um substituto dos modelos principais',
@@ -272,7 +275,8 @@ const sections: Section[] = [
 							</div>
 							<div class="min-w-0">
 								<div class="flex flex-wrap items-baseline gap-x-2.5 gap-y-1">
-									<h3 class="text-lg font-semibold text-text sm:text-[1.25rem]">{item.name}</h3>
+									<h3 class:list={['text-lg font-semibold text-text sm:text-[1.25rem]', { 'item-ended': item.ended }]}>{item.name}</h3>
+									{item.ended && <span class="font-mono text-[0.65rem] font-medium uppercase tracking-[0.12em] text-accent">encerrado</span>}
 									<span class="text-xs text-subtle sm:text-sm">{item.meta}</span>
 								</div>
 								{item.tags && item.tags.length > 0 && (
@@ -321,6 +325,12 @@ const sections: Section[] = [
 			height: 2.2rem;
 			display: block;
 			flex-shrink: 0;
+		}
+		.item-ended {
+			text-decoration-line: line-through;
+			text-decoration-color: var(--color-accent);
+			text-decoration-thickness: 1px;
+			text-decoration-skip-ink: none;
 		}
 		[data-theme='dark'] .item-icon-light,
 		[data-theme='light'] .item-icon-dark {
