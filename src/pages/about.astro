@@ -1,0 +1,952 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import DecryptText from '../components/DecryptText.astro';
+import LinkCard from '../components/LinkCard.astro';
+import SectionHeader from '../components/SectionHeader.astro';
+import { ArrowUpRight } from '@lucide/astro';
+import { careerEntries, earlyPublications, education, techGroups } from '../data/career';
+import { projects } from '../data/projects';
+import { publications } from '../data/publications';
+import { buildRail, formatWhen, spellCount } from '../lib/career';
+import { site, socialLinks } from '../lib/site';
+import { printUrl } from '../lib/url';
+
+const rail = buildRail();
+
+const description =
+	'Currículo vivo de Daniel Gimigliano — engenheiro de software, back-end e produto. Oito anos mês a mês, com evidência para cada competência.';
+
+const railLabel = `Régua de atividade de ${rail.startLabel} até hoje, em duas trilhas: engenharia, e pesquisa e ensino. O detalhamento de cada período está na seção trajetória, abaixo.`;
+
+/** o título conta o alcance da régua, e por isso não pode ser escrito à mão */
+const railHeading = `${spellCount(rail.spanYears)} anos, mês a mês`;
+
+/**
+ * Contato por extenso — impresso no PDF, nunca renderizado na tela.
+ * Na tela os endereços existem só como destino de link, longe de raspadores.
+ * O domínio do site não entra: ele já está no e-mail, e repetido logo ao lado
+ * era lido como um segundo endereço.
+ */
+const resumeContact = [
+	printUrl(site.social.email),
+	site.phone,
+	...socialLinks.filter((item) => item.href !== site.social.email).map((item) => printUrl(item.href)),
+];
+
+/** Três coisas que carrego de um time para o outro, cada uma com onde foi exercida. */
+const method = [
+	{
+		title: 'o dado antes da feature.',
+		text: 'modelo o banco e fecho o contrato da api antes de escrever a primeira tela. código ruim se refatora numa tarde; dado mal modelado se paga em migração, em bug de relatório e em decisão de produto tomada com o número errado.',
+		where: [
+			{ href: '#e-sinergy', label: 'sinergyrh' },
+			{ href: '#e-avita', label: 'avita' },
+			{ href: '#e-ibgc', label: 'ibgc' },
+		],
+	},
+	{
+		title: 'teste é permissão para mudar de ideia.',
+		text: 'cobertura não é meta de dashboard. é o que permite alguém abrir o sistema seis meses depois — talvez eu mesmo, talvez alguém que nunca o viu — e mexer onde precisa sem pedir licença a ninguém.',
+		where: [{ href: '#e-mottu', label: 'mottu' }],
+	},
+	{
+		title: 'explicar faz parte de construir.',
+		text: 'se não consigo ensinar a decisão, ela provavelmente ainda não está pronta. dei aula para oitenta pessoas e publiquei pesquisa revisada por pares: os dois cobram o mesmo tipo de clareza, e os dois deixam pouco espaço para hand-waving.',
+		where: [
+			{ href: '#e-trybe', label: 'trybe' },
+			{ href: '#e-mackenzie', label: 'mestrado' },
+		],
+	},
+];
+---
+
+<BaseLayout title="Sobre" description={description}>
+	{/* marca a página como interativa antes do primeiro paint: os controles que
+	    dependem de JS ficam ocultos até aqui, em vez de aparecerem inertes */}
+	<script is:inline>document.documentElement.dataset.js = '1';</script>
+
+	<div class="cv">
+		<!-- ========================= hero ========================= -->
+		<section class="page-header cv-hero">
+			<DecryptText
+				as="h1"
+				text="daniel gimigliano"
+				class="text-[2.4rem] font-bold leading-[1.1] tracking-[-0.01em] text-text sm:text-[3.3rem]"
+			/>
+			<p class="page-description !mt-3">
+				engenheiro de software · back-end e produto
+			</p>
+
+			<p class="page-description">
+				construo back-end para produto desde 2018: apis em node e .net, dados modelados
+				antes da primeira feature e testes que deixam o time mudar de ideia depois.
+				fui o primeiro engenheiro de uma insurtech, levantei um produto do zero ao lado
+				dos fundadores e formei cerca de oitenta desenvolvedores como instrutor de back-end.
+			</p>
+
+			<nav
+				class="cv-contact mt-6 flex flex-wrap items-center gap-x-2.5 gap-y-2 text-xs lowercase text-subtle sm:text-sm"
+				aria-label="contato"
+			>
+				{socialLinks.map((item, index) => (
+					<>
+						{index > 0 && <span aria-hidden="true" class="cv-sep text-line">·</span>}
+						<a class="transition hover:text-accent" href={item.href}>{item.label}</a>
+					</>
+				))}
+				<span aria-hidden="true" class="cv-sep text-line">|</span>
+				<button type="button" class="cv-print-link transition hover:text-accent" data-print-resume>
+					currículo em pdf
+				</button>
+				<span class="cv-print-only">{resumeContact.join(' · ')}</span>
+			</nav>
+		</section>
+
+		<!-- ===== régua: um mês por célula, duas trilhas ===== -->
+		<section class="page-rule cv-rail-block py-10 sm:py-12">
+			{/* onde estou e em que línguas trabalho. códigos de locale em vez de
+			    "português/inglês" — escaneiam mais rápido e falam a língua de quem
+			    lê um currículo de engenharia. fica encostado na régua porque é a
+			    mesma pergunta: onde, quando e em que termos eu trabalho. */}
+			<p class="cv-role-meta mb-3.5 text-xs text-subtle sm:text-sm">
+				engenheiro coelho, sp · remoto · pt-br nativo · en profissional
+			</p>
+
+			<div class="mb-3.5 flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1.5">
+				<h2 class="font-mono text-xs font-semibold uppercase tracking-[0.24em] text-muted sm:text-sm">
+					{railHeading}
+				</h2>
+				<p class="cv-legend flex flex-wrap gap-x-3.5 gap-y-1 font-mono text-xs text-subtle" aria-hidden="true">
+					<span class="inline-flex items-center gap-1.5"><i class="cv-swatch"></i> engenharia</span>
+					<span class="inline-flex items-center gap-1.5"><i class="cv-swatch cv-swatch-res"></i> pesquisa e ensino</span>
+				</p>
+			</div>
+
+			<div class="cv-rail" id="rail" role="img" aria-label={railLabel}>
+				{rail.tracks.map((track) => (
+					<div class="cv-track" data-track={track.name} style={`--months:${rail.total}`}>
+						{track.cells.map((on, i) => (
+							<div class="cv-cell" data-i={i} data-on={on ? '1' : undefined}></div>
+						))}
+					</div>
+				))}
+			</div>
+
+			<div class="cv-rail-years" style={`--months:${rail.total}`} aria-hidden="true">
+				{rail.years.map((year) => (
+					<span style={`grid-column:${year.column} / span ${year.span}`} data-minor={year.minor ? '1' : undefined}>
+						{year.year}
+					</span>
+				))}
+			</div>
+
+			<p class="cv-readout mt-3 min-h-5.5 font-mono text-sm text-subtle" id="readout" aria-live="polite"></p>
+		</section>
+
+		<!-- ========================= agora ========================= -->
+		<section class="page-rule py-10 sm:py-12" id="agora">
+			<SectionHeader title="agora" />
+			<ul class="cv-now grid gap-3.5">
+				<li class="flex gap-3">
+					<span class="cv-pip" aria-hidden="true"></span>
+					<p class="text-sm leading-5.5 text-muted sm:text-base">
+						<b class="font-semibold text-text">aberto a novas posições de back-end, remotas.</b> times pequenos,
+						produto de verdade e liberdade para decidir arquitetura.
+					</p>
+				</li>
+				<li class="flex gap-3">
+					<span class="cv-pip" aria-hidden="true"></span>
+					<p class="text-sm leading-5.5 text-muted sm:text-base">
+						escrevendo o <a class="link-inline" href="https://github.com/c3h/ito">ito</a>, um issue tracker
+						para terminal — binário único, sqlite, feito para trabalhar junto com agentes de ia.
+					</p>
+				</li>
+				<li class="flex gap-3">
+					<span class="cv-pip" data-idle aria-hidden="true"></span>
+					<p class="text-sm leading-5.5 text-muted sm:text-base">
+						mestrado defendido e aprovado em março de 2026, com
+						<a class="link-inline" href="https://doi.org/10.1007/978-3-032-18612-6_20">artigo publicado pela springer</a>
+						sobre dinâmica de autômatos celulares.
+					</p>
+				</li>
+			</ul>
+		</section>
+
+		<!-- ========================= trajetória ========================= -->
+		<section class="page-rule py-10 sm:py-12" id="trajetoria">
+			<SectionHeader title="trajetória">
+				<div
+					slot="actions"
+					class="cv-js-only ml-auto flex items-center gap-1 font-mono text-sm"
+					role="group"
+					aria-label="nível de detalhe"
+				>
+					<button
+						type="button"
+						class="cv-density-btn border border-transparent px-2 py-1 text-subtle transition hover:text-text aria-pressed:border-line aria-pressed:text-accent"
+						data-density="resumo"
+						aria-pressed="false"
+					>
+						resumo
+					</button>
+					<button
+						type="button"
+						class="cv-density-btn border border-transparent px-2 py-1 text-subtle transition hover:text-text aria-pressed:border-line aria-pressed:text-accent"
+						data-density="completo"
+						aria-pressed="true"
+					>
+						completo
+					</button>
+				</div>
+			</SectionHeader>
+
+			<p class="cv-section-lead -mt-4 text-sm leading-5.5 text-muted sm:text-base">
+				nenhuma competência aqui é adjetivo solto. escolha uma tecnologia e a trajetória
+				mostra onde ela foi exercida — e por quanto tempo.
+			</p>
+
+			<div class="cv-js-only mt-7 grid gap-3.5" id="filter">
+				{techGroups.map((group) => (
+					<div>
+						<p class="font-mono text-xs uppercase tracking-[0.24em] text-subtle">{group.label}</p>
+						<div class="mt-2 flex flex-wrap gap-1.5" role="group" aria-label={group.label}>
+							{group.items.map((item) => (
+								<button
+									class="cv-chip border hairline px-2.5 py-1 text-sm text-muted transition hover:border-accent hover:text-accent aria-pressed:border-accent aria-pressed:text-accent"
+									data-tech={item.id}
+									aria-pressed="false"
+								>
+									{item.label}
+								</button>
+							))}
+						</div>
+					</div>
+				))}
+				<p class="min-h-5.5 text-sm leading-5.5 text-subtle" id="filter-status" aria-live="polite"></p>
+			</div>
+
+			<div class="cv-timeline mt-7" id="timeline" data-density="completo">
+				{careerEntries.map((entry) => (
+					<article
+						class="cv-entry relative pb-9 pl-5 last:pb-0"
+						id={entry.id}
+						data-tech={entry.tech.join(' ')}
+						data-from={entry.from}
+						data-to={entry.to}
+					>
+						<p class="font-mono text-xs text-subtle sm:text-sm">
+							{formatWhen(entry.from, entry.to)} · {entry.kind}
+						</p>
+						<h3 class="mt-1.5 text-lg font-semibold text-text sm:text-[1.25rem]">
+							{entry.role}
+							<span class="font-normal text-muted">
+								{' · '}
+								{entry.orgHref ? <a class="link-inline" href={entry.orgHref}>{entry.org}</a> : entry.org}
+								{entry.orgNote && ` ${entry.orgNote}`}
+							</span>
+						</h3>
+						<p class="mt-2 text-sm leading-5.5 text-muted sm:text-base">{entry.what}</p>
+						{entry.call && (
+							<div class="cv-call mt-3 border-l pl-3 text-sm leading-5.5 text-text hairline sm:text-base">
+								<span class="text-subtle">{entry.call.label}</span> {entry.call.text}
+							</div>
+						)}
+						{entry.did && (
+							<ul class="cv-did mt-3 grid gap-1.5 text-sm leading-5.5 text-muted sm:text-base">
+								{entry.did.map((bullet) => (
+									<li>
+										{bullet.href ? (
+											<a class="link-inline" href={bullet.href} data-print-url={printUrl(bullet.href)}>{bullet.text}</a>
+										) : (
+											bullet.text
+										)}
+										{bullet.after}
+									</li>
+								))}
+							</ul>
+						)}
+						<p class="mt-3 font-mono text-xs text-subtle sm:text-sm">{entry.stack}</p>
+					</article>
+				))}
+			</div>
+		</section>
+
+		<!-- ========================= método ========================= -->
+		<section class="page-rule py-10 sm:py-12" id="metodo">
+			<SectionHeader title="como eu trabalho" />
+			<p class="cv-section-lead -mt-4 text-sm leading-5.5 text-muted sm:text-base">
+				três coisas que carrego de um time para o outro.
+			</p>
+
+			<div class="cv-method mt-7 grid gap-7 sm:gap-9">
+				{method.map((item) => (
+					<div>
+						<h3 class="text-lg font-semibold text-text sm:text-[1.25rem]">
+							<span class="text-accent" aria-hidden="true">— </span>{item.title}
+						</h3>
+						<p class="mt-2.5 text-sm leading-5.5 text-muted sm:text-base">{item.text}</p>
+						<p class="cv-where mt-3 text-xs text-subtle sm:text-sm">
+							onde: {item.where.map((ref, index) => (
+								<>
+									{index > 0 && ' · '}
+									<a class="link-inline" href={ref.href}>{ref.label}</a>
+								</>
+							))}
+						</p>
+					</div>
+				))}
+			</div>
+		</section>
+
+		<!-- ========================= projetos ========================= -->
+		<section class="page-rule py-10 sm:py-12" id="projetos">
+			<SectionHeader title="projetos" href="/projects/" linkLabel="todos os projetos" />
+			<div class="page-list">
+				{projects.map((project) => (
+					<LinkCard
+						title={project.title}
+						meta={`${project.role} · ${project.period}`}
+						description={project.description}
+						href={project.href}
+						headingLevel="h3"
+						pills={project.stack}
+					/>
+				))}
+			</div>
+		</section>
+
+		<!-- ========================= formação e publicações ========================= -->
+		<section class="page-rule py-10 sm:py-12" id="formacao">
+			<SectionHeader title="formação e publicações" href="/publications/" linkLabel="todas as publicações" />
+			<div class="page-list">
+				{education.map((item) => (
+					<LinkCard title={item.title} meta={item.meta} description={item.description} headingLevel="h3" />
+				))}
+				{publications.map((publication) => (
+					<LinkCard
+						title={publication.title}
+						meta={`${publication.authors} · ${publication.venue} · ${publication.country} · ${publication.year}`}
+						href={publication.href}
+						headingLevel="h3"
+					/>
+				))}
+				<LinkCard title={earlyPublications.title} meta={earlyPublications.meta} headingLevel="h3" />
+			</div>
+		</section>
+
+		<!-- ========================= fechamento ========================= -->
+		<section class="page-rule cv-closing pt-10 sm:pt-12">
+			<p class="max-w-[46ch] text-lg text-text sm:text-[1.25rem]">
+				se você chegou até aqui, provavelmente tem um sistema para construir. me conte qual é.
+			</p>
+			<a
+				href={site.social.email}
+				class="group mt-5 inline-flex items-center gap-1 text-sm text-accent transition hover:text-text sm:text-base"
+			>
+				me mandar um email
+				<ArrowUpRight size={18} class="transition group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+			</a>
+		</section>
+	</div>
+
+	{/* o modelo da régua é calculado no build; o cliente só liga a interação */}
+	<script
+		type="application/json"
+		id="rail-data"
+		is:inline
+		set:html={JSON.stringify({ total: rail.total, origin: rail.origin, model: rail.model }).replace(/</g, '\\u003c')}
+	></script>
+</BaseLayout>
+
+<style is:global>
+	/* ============================================================
+	   /about — currículo vivo.
+	   O layout, a escala tipográfica e os cards vêm das utilities e dos
+	   componentes do site. Aqui fica só o que não existe em nenhuma outra
+	   página: a régua de meses, o fio da trajetória e o modo impressão.
+	   A família --cell* pinta a régua; tudo escopado sob .cv.
+	   ============================================================ */
+	.cv {
+		--cell: #5c5e64;
+		--cell-soft: #35363b;
+		--cell-empty: #1a1a1c;
+	}
+	:root[data-theme='light'] .cv {
+		--cell: #77857b;
+		--cell-soft: #b0bab3;
+		--cell-empty: #e6ebe7;
+	}
+
+	/* sem JS os controles não fazem nada, então não existem */
+	:root:not([data-js]) .cv .cv-js-only {
+		display: none !important;
+	}
+	.cv .cv-print-only {
+		display: none;
+	}
+
+	/* "currículo em pdf" é uma ação, não um destino: botão que se lê como link */
+	.cv .cv-print-link {
+		color: inherit;
+		background: none;
+		border: 0;
+		padding: 0;
+		cursor: pointer;
+	}
+
+	/* ============================================================
+	   régua — o elemento de assinatura. um mês por célula, em duas
+	   trilhas. é um diagrama espaço-tempo, e também o índice da página:
+	   filtro, hover e clique passam por ela.
+	   ============================================================ */
+	.cv .cv-swatch {
+		width: 0.6rem;
+		height: 0.6rem;
+		display: inline-block;
+		background: var(--cell);
+	}
+	.cv .cv-swatch-res {
+		background: var(--cell-soft);
+	}
+
+	.cv .cv-rail {
+		display: grid;
+		gap: 3px;
+	}
+	.cv .cv-track {
+		display: grid;
+		grid-template-columns: repeat(var(--months), minmax(0, 1fr));
+		gap: 1px;
+	}
+	.cv .cv-cell {
+		height: 0.75rem;
+		background: var(--cell-empty);
+		transition: background 160ms ease;
+	}
+	@media (width >= 40rem) {
+		.cv .cv-cell {
+			height: 1rem;
+		}
+	}
+	.cv .cv-cell[data-on='1'] {
+		background: var(--cell);
+	}
+	/* a trilha de pesquisa é a mesma malha em meio-tom: outra natureza, não
+	   menos importante. meio-tom sobrevive a células de 2px no celular;
+	   contorno de 1px, não. */
+	.cv .cv-track[data-track='res'] .cv-cell[data-on='1'] {
+		background: var(--cell-soft);
+	}
+	/* estado ativo: hover na régua, hover numa entrada, ou filtro por tecnologia */
+	.cv .cv-cell[data-hot='1'] {
+		background: var(--accent);
+	}
+	.cv .cv-track[data-track='res'] .cv-cell[data-hot='1'] {
+		background: color-mix(in srgb, var(--accent) 55%, var(--cell-empty));
+	}
+
+	.cv .cv-rail-years {
+		margin-top: 0.5rem;
+		display: grid;
+		grid-template-columns: repeat(var(--months), minmax(0, 1fr));
+		color: var(--subtle);
+		font-family: var(--font-mono);
+		font-size: 0.625rem;
+	}
+	.cv .cv-rail-years span {
+		grid-row: 1;
+		letter-spacing: 0.04em;
+	}
+	.cv .cv-rail-years span[data-minor] {
+		display: none;
+	}
+	@media (width >= 34rem) {
+		.cv .cv-rail-years span[data-minor] {
+			display: block;
+		}
+	}
+	.cv .cv-readout b {
+		color: var(--text);
+		font-weight: 600;
+	}
+	.cv .cv-readout .mo {
+		color: var(--accent);
+	}
+
+	/* ---------- agora ---------- */
+	.cv .cv-pip {
+		margin-top: 0.42rem;
+		width: 0.45rem;
+		height: 0.45rem;
+		flex-shrink: 0;
+		background: var(--accent);
+	}
+	.cv .cv-pip[data-idle] {
+		background: transparent;
+		box-shadow: inset 0 0 0 1px var(--subtle);
+	}
+
+	/* ---------- filtro ---------- */
+	.cv .cv-chip[aria-pressed='true'] {
+		background: color-mix(in srgb, var(--accent) 9%, transparent);
+	}
+	.cv .cv-clear {
+		color: inherit;
+		text-decoration: underline;
+		text-underline-offset: 0.22em;
+		cursor: pointer;
+	}
+	.cv .cv-clear:hover {
+		color: var(--accent);
+	}
+	#filter-status b {
+		color: var(--text);
+		font-weight: 600;
+	}
+
+	/* ---------- trajetória ---------- */
+	/* fio vertical, interrompido no último item */
+	.cv .cv-entry::after {
+		content: '';
+		position: absolute;
+		left: 0.215rem;
+		top: 0.95rem;
+		bottom: 0;
+		width: 1px;
+		background: var(--line);
+	}
+	.cv .cv-entry:last-child::after {
+		display: none;
+	}
+	/* o marcador se alinha ao centro da linha da data, que cresce em sm */
+	.cv .cv-entry::before {
+		content: '';
+		position: absolute;
+		left: 0;
+		top: 0.1875rem;
+		width: 0.5rem;
+		height: 0.5rem;
+		background: var(--bg);
+		box-shadow: inset 0 0 0 1px var(--subtle);
+		transition: background 160ms ease, box-shadow 160ms ease;
+		z-index: 1;
+	}
+	@media (width >= 40rem) {
+		.cv .cv-entry::before {
+			top: 0.3125rem;
+		}
+	}
+	/* alvo de âncora vinda da seção "como eu trabalho" */
+	.cv .cv-entry:target::before {
+		background: var(--accent);
+		box-shadow: inset 0 0 0 1px var(--accent);
+	}
+	.cv .cv-entry:target h3 {
+		color: var(--accent);
+	}
+
+	.cv .cv-did li {
+		padding-left: 0.95rem;
+		position: relative;
+	}
+	.cv .cv-did li::before {
+		content: '';
+		position: absolute;
+		left: 0;
+		top: 0.62em;
+		width: 0.3rem;
+		height: 1px;
+		background: var(--subtle);
+	}
+
+	/* modo resumo: o essencial de cada posição, em uma tela */
+	.cv .cv-timeline[data-density='resumo'] .cv-call,
+	.cv .cv-timeline[data-density='resumo'] .cv-did {
+		display: none;
+	}
+	.cv .cv-timeline[data-density='resumo'] .cv-entry {
+		padding-bottom: 1.7rem;
+	}
+
+	/* filtro ativo: contexto preservado, foco deslocado */
+	.cv .cv-timeline .cv-entry {
+		transition: opacity 200ms ease;
+	}
+	.cv .cv-timeline[data-filtering] .cv-entry {
+		opacity: 0.32;
+	}
+	.cv .cv-timeline[data-filtering] .cv-entry[data-hit] {
+		opacity: 1;
+	}
+	.cv .cv-timeline[data-filtering] .cv-entry[data-hit]::before {
+		background: var(--accent);
+		box-shadow: inset 0 0 0 1px var(--accent);
+	}
+
+	/* ============================================================
+	   impressão — "currículo em pdf" precisa produzir um currículo de
+	   verdade, não uma captura da tela escura. O reset de tema e o corte
+	   do cromo do site são do site inteiro e moram em global.css; aqui
+	   fica só a calibragem do currículo.
+	   ============================================================ */
+	@media print {
+		.cv,
+		:root[data-theme='light'] .cv {
+			--cell: #888;
+			--cell-soft: #c4c4c4;
+			--cell-empty: #eee;
+		}
+		/* a escala de tela é redefinida no papel, não herdada */
+		.cv {
+			font-size: 9pt;
+			line-height: 1.35;
+		}
+		.cv p,
+		.cv li,
+		.cv h3 {
+			font-size: inherit !important;
+			line-height: inherit !important;
+		}
+		/* o fechamento é um convite de tela: no papel o contato já está no topo */
+		.cv .cv-js-only,
+		.cv .cv-readout,
+		.cv .cv-closing,
+		.cv .cv-section-lead,
+		.cv .cv-legend,
+		.cv .cv-contact a,
+		.cv .cv-contact button,
+		.cv .cv-contact .cv-sep {
+			display: none !important;
+		}
+		/* em papel o contato não são rótulos clicáveis: são endereços por extenso */
+		.cv .cv-print-only {
+			display: inline;
+		}
+		.cv .cv-hero {
+			padding-bottom: 0 !important;
+		}
+		.cv .cv-hero h1 {
+			font-size: 19pt !important;
+		}
+		.cv .cv-hero .page-description {
+			margin-top: 0.35rem !important;
+			font-size: 10pt !important;
+			line-height: 1.4 !important;
+			max-width: none;
+		}
+		.cv .cv-role-meta {
+			margin: 0 0 0.35rem !important;
+		}
+		.cv .cv-contact {
+			margin-top: 0.7rem !important;
+			gap: 0.25rem 0.7rem;
+		}
+		.cv section {
+			margin-top: 0 !important;
+			padding-top: 0.8rem !important;
+			padding-bottom: 0.9rem !important;
+		}
+		.cv .section-title {
+			font-size: 11.5pt;
+			margin-bottom: 0.5rem !important;
+		}
+		.cv .section-title + * {
+			margin-bottom: 0.5rem !important;
+		}
+		.cv .cv-rail-block {
+			padding-top: 0.7rem !important;
+		}
+		.cv .cv-cell {
+			height: 6pt;
+		}
+		.cv .cv-now {
+			gap: 0.35rem;
+		}
+		.cv .cv-timeline {
+			margin-top: 0.5rem !important;
+		}
+		/* uma entrada pode partir entre páginas, mas nunca separada do próprio título */
+		.cv .cv-entry {
+			padding-bottom: 0.7rem !important;
+		}
+		.cv .cv-entry::after {
+			display: none;
+		}
+		.cv .cv-entry > p:first-child,
+		.cv .cv-entry h3 {
+			break-after: avoid;
+		}
+		.cv .cv-entry > * {
+			margin-top: 0.3rem !important;
+		}
+		.cv .cv-call {
+			break-inside: avoid;
+		}
+		.cv .cv-did {
+			gap: 0.1rem !important;
+		}
+		/* o papel ignora resumo e filtro: um currículo impresso pela metade não
+		   serve a ninguém, e desfazer os controles no clique tiraria da tela o
+		   estado que o leitor tinha montado */
+		.cv .cv-timeline[data-density='resumo'] .cv-call,
+		.cv .cv-timeline[data-density='resumo'] .cv-did {
+			display: grid !important;
+		}
+		.cv .cv-timeline[data-filtering] .cv-entry {
+			opacity: 1;
+		}
+		.cv .cv-timeline[data-filtering] .cv-entry[data-hit]::before {
+			background: var(--bg);
+			box-shadow: inset 0 0 0 1px var(--subtle);
+		}
+		.cv .cv-method {
+			margin-top: 0.6rem !important;
+			gap: 0.7rem !important;
+		}
+		.cv .cv-method > div {
+			break-inside: avoid;
+		}
+		.cv .cv-method p,
+		.cv .cv-where {
+			margin-top: 0.25rem !important;
+		}
+		.cv .page-list {
+			margin-top: 0.5rem !important;
+			gap: 0 !important;
+		}
+		.cv .link-card p {
+			margin-top: 0.15rem !important;
+		}
+	}
+</style>
+
+<script>
+	type RailItem = {
+		target: string;
+		from: number;
+		to: number;
+		track: 'eng' | 'res';
+		tech: string[];
+		title: string;
+	};
+
+	const dataNode = document.getElementById('rail-data');
+	const rail = document.getElementById('rail');
+	const readout = document.getElementById('readout');
+	const status = document.getElementById('filter-status');
+	const timeline = document.getElementById('timeline');
+
+	if (dataNode && rail && readout && status && timeline) {
+		const MONTH_ABBR = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'];
+		const { total, origin, model } = JSON.parse(dataNode.textContent ?? '{}') as {
+			total: number;
+			origin: number;
+			model: RailItem[];
+		};
+
+		const labelOf = (i: number) => {
+			const abs = origin + i;
+			return `${MONTH_ABBR[abs % 12]}/${Math.floor(abs / 12)}`;
+		};
+
+		// quem ocupa cada mês — a base do readout e da pintura das células
+		const occupancy: RailItem[][] = Array.from({ length: total }, () => []);
+		for (const item of model) {
+			for (let i = item.from; i <= item.to; i++) occupancy[i].push(item);
+		}
+
+		// o alvo de cada período e as células de cada trilha são fixos desde o
+		// build: resolvidos uma vez, nunca reconsultados no meio de uma interação
+		const nodes = new Map(model.map((item) => [item, document.querySelector<HTMLElement>(item.target)]));
+		const nodeOf = (item: RailItem) => nodes.get(item) ?? null;
+		const tracks = Array.from(rail.querySelectorAll<HTMLElement>('.cv-track')).map((el) => ({
+			name: el.dataset.track as 'eng' | 'res',
+			cells: Array.from(el.children) as HTMLElement[],
+		}));
+		const chips = Array.from(document.querySelectorAll<HTMLButtonElement>('.cv-chip'));
+		const densityBtns = Array.from(document.querySelectorAll<HTMLButtonElement>('.cv-density-btn'));
+
+		// quais tecnologias levam a quais períodos — o filtro não refaz a varredura a cada clique
+		const byTech = new Map<string, RailItem[]>();
+		for (const item of model) {
+			for (const tech of item.tech) {
+				const hits = byTech.get(tech);
+				if (hits) hits.push(item);
+				else byTech.set(tech, [item]);
+			}
+		}
+		const matching = (tech: string) => byTech.get(tech) ?? [];
+
+		const IDLE = 'percorra a régua para ver mês a mês. clique para ir ao período.';
+		// o readout tem um estado de repouso — livre, ou o do filtro — para onde
+		// sempre volta quando o ponteiro sai da régua ou de uma entrada
+		let baseReadout = IDLE;
+		let activeTech: string | null = null;
+
+		const rest = () => {
+			readout.innerHTML = baseReadout;
+		};
+
+		type Hot = { eng: Set<number>; res: Set<number> };
+
+		/* só as células acesas são tocadas: um cursor mexe em duas de duzentas e
+		   quarenta, e varrer a régua inteira a cada evento de ponteiro custaria
+		   mais que a interação inteira vale */
+		let lit: HTMLElement[] = [];
+		const hotSet = (hot: Hot | null) => {
+			for (const cell of lit) delete cell.dataset.hot;
+			lit = [];
+			if (!hot) return;
+			for (const track of tracks) {
+				for (const i of hot[track.name]) {
+					const cell = track.cells[i];
+					if (!cell) continue;
+					cell.dataset.hot = '1';
+					lit.push(cell);
+				}
+			}
+		};
+
+		/* acender é uma afirmação: um período só acende na trilha em que
+		   aconteceu. a única exceção é o cursor da régua, que é um mês e não
+		   um trabalho, e por isso atravessa as duas. */
+		const hotOf = (items: RailItem[]): Hot => {
+			const hot: Hot = { eng: new Set(), res: new Set() };
+			for (const item of items) {
+				for (let i = item.from; i <= item.to; i++) hot[item.track].add(i);
+			}
+			return hot;
+		};
+
+		const cursorAt = (i: number): Hot => ({ eng: new Set([i]), res: new Set([i]) });
+
+		// o filtro é o estado de base; hover é um estado passageiro por cima dele
+		const paintBase = () => hotSet(activeTech ? hotOf(matching(activeTech)) : null);
+
+		rest();
+
+		// o ponteiro atravessa cada célula em vários eventos; só o primeiro é trabalho
+		let hovered = -1;
+
+		rail.addEventListener('mousemove', (event) => {
+			const cell = (event.target as HTMLElement).closest<HTMLElement>('.cv-cell');
+			if (!cell) return;
+			const i = Number(cell.dataset.i);
+			if (i === hovered) return;
+			hovered = i;
+			const here = occupancy[i];
+			readout.innerHTML =
+				`<span class="mo">${labelOf(i)}</span> · ` +
+				(here.length ? here.map((item) => `<b>${item.title}</b>`).join(' + ') : 'sem registro');
+			hotSet(cursorAt(i));
+		});
+
+		rail.addEventListener('mouseleave', () => {
+			hovered = -1;
+			rest();
+			paintBase();
+		});
+
+		rail.addEventListener('click', (event) => {
+			const cell = (event.target as HTMLElement).closest<HTMLElement>('.cv-cell');
+			if (!cell) return;
+			const here = occupancy[Number(cell.dataset.i)];
+			if (here.length) nodeOf(here[0])?.scrollIntoView({ block: 'center', behavior: 'smooth' });
+		});
+
+		// hover numa entrada acende o próprio período na régua
+		for (const item of model) {
+			const node = nodeOf(item);
+			if (!node) continue;
+			node.addEventListener('mouseenter', () => {
+				if (activeTech) return;
+				hotSet(hotOf([item]));
+				readout.innerHTML =
+					`<span class="mo">${labelOf(item.from)} → ${labelOf(item.to)}</span> · <b>${item.title}</b>`;
+			});
+			node.addEventListener('mouseleave', () => {
+				if (activeTech) return;
+				hotSet(null);
+				rest();
+			});
+		}
+
+		/* ---------- filtro por tecnologia ---------- */
+		const clearFilter = () => {
+			activeTech = null;
+			timeline.removeAttribute('data-filtering');
+			for (const chip of chips) chip.setAttribute('aria-pressed', 'false');
+			for (const item of model) nodeOf(item)?.removeAttribute('data-hit');
+			status.textContent = '';
+			baseReadout = IDLE;
+			rest();
+			hotSet(null);
+		};
+
+		// duração exata: um número redondo demais convida à pergunta errada na entrevista
+		const duration = (months: number) => {
+			if (months < 12) return `${months} ${months === 1 ? 'mês' : 'meses'}`;
+			const years = Math.floor(months / 12);
+			const rem = months % 12;
+			const head = `${years} ${years === 1 ? 'ano' : 'anos'}`;
+			return rem ? `${head} e ${rem} ${rem === 1 ? 'mês' : 'meses'}` : head;
+		};
+
+		const applyFilter = (chip: HTMLButtonElement) => {
+			const tech = chip.dataset.tech;
+			if (!tech) return;
+			if (activeTech === tech) {
+				clearFilter();
+				return;
+			}
+			activeTech = tech;
+			for (const other of chips) other.setAttribute('aria-pressed', String(other.dataset.tech === tech));
+
+			const hits = matching(tech);
+			const hit = new Set(hits);
+			for (const item of model) {
+				const node = nodeOf(item);
+				if (!node) continue;
+				if (hit.has(item)) node.setAttribute('data-hit', '');
+				else node.removeAttribute('data-hit');
+			}
+			timeline.setAttribute('data-filtering', '');
+
+			const hot = hotOf(hits);
+			hotSet(hot);
+			// a duração é a união das duas trilhas: um mês vivido duas vezes conta uma
+			const months = [...new Set([...hot.eng, ...hot.res])];
+
+			status.innerHTML =
+				`<b>${chip.textContent}</b> · ${hits.length} ${hits.length === 1 ? 'posição' : 'posições'} · ` +
+				`${duration(months.length)} de uso — destacados na régua e na trajetória. ` +
+				'<button type="button" class="cv-clear" data-clear-filter>limpar</button>';
+			status.querySelector('[data-clear-filter]')?.addEventListener('click', clearFilter);
+
+			baseReadout =
+				`régua filtrada por <b>${chip.textContent}</b> · ` +
+				`<span class="mo">${labelOf(Math.min(...months))} → ${labelOf(Math.max(...months))}</span>`;
+			rest();
+
+			// só rola se a trajetória não estiver visível — evita puxar o tapete do leitor
+			if (timeline.getBoundingClientRect().top > window.innerHeight * 0.9) {
+				timeline.scrollIntoView({ block: 'start', behavior: 'smooth' });
+			}
+		};
+
+		for (const chip of chips) chip.addEventListener('click', () => applyFilter(chip));
+
+		/* ---------- densidade ---------- */
+		for (const btn of densityBtns) {
+			btn.addEventListener('click', () => {
+				timeline.dataset.density = btn.dataset.density;
+				for (const other of densityBtns) other.setAttribute('aria-pressed', String(other === btn));
+			});
+		}
+
+		/* ---------- impressão ---------- */
+		// o papel sai sempre completo e sem filtro pelo CSS de impressão: o estado
+		// que o leitor montou na tela continua lá quando ele volta do diálogo
+		document.querySelector('[data-print-resume]')?.addEventListener('click', () => window.print());
+	}
+</script>

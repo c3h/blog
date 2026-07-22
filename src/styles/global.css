@@ -221,12 +221,15 @@ input {
 	margin-top: 0;
 }
 
+/* link dentro de texto corrido — mesmo tratamento no corpo dos posts e fora dele */
+.link-inline,
 .prose-post a {
 	color: var(--accent);
 	text-decoration: underline;
 	text-decoration-color: color-mix(in srgb, var(--accent) 45%, transparent);
 }
 
+.link-inline:hover,
 .prose-post a:hover {
 	text-decoration-color: var(--accent);
 }
@@ -441,5 +444,56 @@ html[data-theme='light'] .prose-post pre.astro-code span {
 		animation-iteration-count: 1 !important;
 		scroll-behavior: auto !important;
 		transition-duration: 0.01ms !important;
+	}
+}
+
+/* ============================================================
+   impressão — vale para o site inteiro: qualquer página tem que
+   sair legível em papel branco, sem o cromo que só serve à tela.
+   A calibragem de cada página fica na própria página.
+   ============================================================ */
+@media print {
+	:root,
+	:root[data-theme='dark'],
+	:root[data-theme='light'] {
+		color-scheme: light;
+		--bg: #fff;
+		--panel: #fff;
+		--text: #111;
+		--muted: #333;
+		--subtle: #666;
+		--line: #ccc;
+		--accent: #111;
+	}
+
+	@page {
+		margin: 12mm;
+	}
+
+	/* o fundo escuro é gravado inline no <head>, fora do alcance de qualquer página */
+	body {
+		display: block !important;
+		min-height: 0 !important;
+		background: #fff !important;
+	}
+
+	header.shell,
+	footer.shell,
+	[data-command-root],
+	#back-to-top {
+		display: none !important;
+	}
+
+	main.shell {
+		width: 100% !important;
+		padding: 0 !important;
+	}
+
+	/* o papel não tem clique: um link vira o endereço impresso ao lado */
+	[data-print-url]::after {
+		content: ' · ' attr(data-print-url);
+		color: #666;
+		font-size: 0.85em;
+		font-weight: 400;
 	}
 }

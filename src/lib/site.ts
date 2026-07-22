@@ -11,12 +11,15 @@ export const site = {
 		lattes: 'http://lattes.cnpq.br/6585120736457645',
 		email: 'mailto:hey@gimigliano.blog',
 	},
+	/** só existe no currículo impresso; na tela não há onde clicar num telefone */
+	phone: '+55 11 95173-4126',
 };
 
 export const navItems = [
 	{ href: '/', label: 'início', key: 'i' },
 	{ href: '/blog/', label: 'blog', key: 'b' },
 	{ href: '/projects/', label: 'projetos', key: 'p' },
+	{ href: '/about/', label: 'sobre', key: 's' },
 ] as const;
 
 export const secondaryNav = [

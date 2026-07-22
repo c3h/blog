@@ -1,10 +1,11 @@
 ---
 import { ArrowUpRight } from '@lucide/astro';
+import { printUrl } from '../lib/url';
 
 type Props = {
 	title: string;
 	meta: string;
-	description: string;
+	description?: string;
 	href?: string;
 	headingLevel?: 'h2' | 'h3';
 	revealArrowOnHover?: boolean;
@@ -50,8 +51,8 @@ const linkProps = href ? { href, target: '_blank', rel: 'noreferrer' } : {};
 			/>
 		)}
 	</div>
-	<p class="mt-1 text-xs text-subtle sm:text-sm">{meta}</p>
-	<p class="mt-2.5 text-sm leading-5.5 text-muted sm:text-base">{description}</p>
+	<p class="mt-1 text-xs text-subtle sm:text-sm" data-print-url={href ? printUrl(href) : undefined}>{meta}</p>
+	{description && <p class="mt-2.5 text-sm leading-5.5 text-muted sm:text-base">{description}</p>}
 	{pills && pills.length > 0 && (
 		<div class="mt-3.5 flex flex-wrap gap-1.5">
 			{pills.map((pill) => (
@@ -72,5 +73,23 @@ const linkProps = href ? { href, target: '_blank', rel: 'noreferrer' } : {};
 	:root[data-theme='light'] a.link-card:hover,
 	:root[data-theme='light'] a.link-card:focus-visible {
 		background: color-mix(in srgb, var(--accent) 4%, transparent);
+	}
+
+	/* no papel o card é uma entrada de lista: sem recuo, sem seta, sem quebrar ao meio.
+	   o endereço do link entra ao lado do meta pela regra [data-print-url] global. */
+	@media print {
+		.link-card {
+			margin-inline: 0 !important;
+			padding: 0.35rem 0 !important;
+			break-inside: avoid;
+		}
+		.link-card svg {
+			display: none !important;
+		}
+		.link-card > div:last-child span {
+			border: 1px solid #ccc;
+			padding: 0.05rem 0.3rem !important;
+			font-size: 0.8em !important;
+		}
 	}
 </style>

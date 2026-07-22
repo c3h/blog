@@ -12,6 +12,7 @@ const { title, href, linkLabel } = Astro.props;
 
 <div class="mb-7 flex items-end justify-between gap-2.5 sm:mb-9">
 	<h2 class="section-title">{title}</h2>
+	<slot name="actions" />
 	{href && linkLabel && (
 		<a href={href} class="group inline-flex items-center gap-1 text-sm text-accent transition hover:text-text sm:text-base">
 			<span class="sm:hidden">ver mais</span>
