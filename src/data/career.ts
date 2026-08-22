@@ -26,8 +26,6 @@ export type CareerEntry = {
 	/** ids do filtro; cada um precisa aparecer na stack declarada da posição */
 	tech: string[];
 	what: string;
-	/** a decisão que essa posição rendeu — o que separa currículo de portfólio */
-	call?: { label: string; text: string };
 	did?: CareerBullet[];
 	stack: string;
 };
@@ -36,6 +34,18 @@ export type CareerEntry = {
 export const researchKinds: ReadonlySet<CareerKind> = new Set<CareerKind>(['pesquisa', 'ensino']);
 
 export const careerEntries: CareerEntry[] = [
+	{
+		id: 'e-mackenzie-dr',
+		from: '2026-08',
+		to: 'agora',
+		kind: 'pesquisa',
+		role: 'doutorado em engenharia elétrica e computação',
+		org: 'mackenzie',
+		orgHref: 'https://www.mackenzie.br',
+		tech: [],
+		what: 'continuidade da pesquisa do mestrado em dinâmica de autômatos celulares.',
+		stack: 'wolfram language · simulação · análise de dados',
+	},
 	{
 		id: 'e-mackenzie',
 		from: '2024-02',
@@ -46,10 +56,6 @@ export const careerEntries: CareerEntry[] = [
 		orgHref: 'https://www.mackenzie.br',
 		tech: [],
 		what: 'pesquisa computacional em dinâmica de autômatos celulares, com bolsa CAPES. geração e análise de grandes volumes de simulações para correlacionar assincronismo de atualização e comportamento dinâmico.',
-		call: {
-			label: 'o que isso trouxe para a engenharia:',
-			text: 'a disciplina de formular uma pergunta antes de escrever código, e de só chamar de resultado o que sobrevive à revisão de outra pessoa.',
-		},
 		did: [
 			{
 				text: 'artigo publicado no ASCAT 2026',
@@ -82,10 +88,6 @@ export const careerEntries: CareerEntry[] = [
 		orgHref: 'https://sinergyrh.com.br',
 		tech: ['typescript', 'node', 'nestjs', 'nextjs', 'react', 'sqlserver', 'prisma', 'modelagem', 'cicd', 'api'],
 		what: 'produto novo, do zero, ao lado dos fundadores — do escopo ao deploy, participando também da priorização de funcionalidades.',
-		call: {
-			label: 'a decisão:',
-			text: 'modelar os dados e fechar o contrato da API antes da primeira tela. código se refatora; dado mal modelado vira dívida de produto.',
-		},
 		did: [
 			{ text: 'estruturei o projeto do zero: modelagem, arquitetura da API e organização dos repositórios' },
 			{ text: 'API em NestJS sobre SQL Server e Prisma; front-end em Next.js' },
@@ -103,13 +105,9 @@ export const careerEntries: CareerEntry[] = [
 		orgHref: 'https://metrotelworks.com/',
 		orgNote: '(tim brasil, tim itália, vivo)',
 		tech: ['python'],
-		what: 'análise de desempenho de rede no Crowdsourced Benchmark Service — do dado bruto à decisão de infraestrutura.',
-		call: {
-			label: 'o que ficou:',
-			text: 'ler um sistema pelos números que ele emite. é a mesma leitura que se faz de uma API em produção.',
-		},
+		what: 'análise de desempenho de rede no Crowdsourced Benchmark Service, do dado bruto ao relatório que chegava às equipes de rede.',
 		did: [
-			{ text: 'dashboards em Power BI usados por equipes técnicas e pela diretoria da TIM Brasil para priorizar investimentos de rede' },
+			{ text: 'dashboards em Power BI usados por equipes técnicas e pela diretoria da TIM Brasil no acompanhamento de desempenho de rede' },
 			{ text: 'modelo preditivo inicial em Python e PyTorch para prever tendências de desempenho' },
 			{ text: 'scripts e documentação técnica para projetos de instalação de antenas (Vivo)' },
 		],
@@ -125,11 +123,7 @@ export const careerEntries: CareerEntry[] = [
 		orgHref: 'https://mottu.com.br',
 		tech: ['typescript', 'node', 'nestjs', 'testes', 'api'],
 		what: 'camada BFF em Node.js e NestJS, responsável pela integração entre os microsserviços internos e o front-end da aplicação.',
-		call: {
-			label: 'a decisão:',
-			text: 'cobrir o BFF com testes unitários antes de adicionar rota nova. a camada que fica entre todo mundo é a que menos pode falhar em silêncio.',
-		},
-		did: [{ text: 'testes com Jest que elevaram a cobertura e a estabilidade do sistema em produção' }],
+		did: [{ text: 'testes com Jest, elevando a cobertura da camada BFF' }],
 		stack: 'node.js · nestjs · typescript · jest',
 	},
 	{
@@ -141,11 +135,7 @@ export const careerEntries: CareerEntry[] = [
 		org: 'trybe',
 		orgHref: 'https://www.betrybe.com',
 		tech: ['typescript', 'node', 'docker', 'mongodb', 'api'],
-		what: 'duas turmas, cerca de oitenta alunos, nos módulos de back-end: Docker, SQL, Node.js, TypeScript, MongoDB e deploy. melhor índice de desempenho entre as turmas da Trybe no período.',
-		call: {
-			label: 'o que ficou:',
-			text: 'explicar uma decisão técnica para oitenta pessoas expõe rápido quando ela não se sustenta.',
-		},
+		what: 'módulos de back-end: Docker, SQL, Node.js, TypeScript, MongoDB e deploy. melhor índice de desempenho entre as turmas da Trybe no período.',
 		did: [
 			{ text: 'mentorias técnicas semanais, gravadas e disponibilizadas como material de apoio' },
 			{ text: 'simulações 1:1 de entrevistas técnicas e comportamentais' },
@@ -158,15 +148,11 @@ export const careerEntries: CareerEntry[] = [
 		from: '2020-07',
 		to: '2022-01',
 		kind: 'engenharia',
-		role: 'founding engineer',
+		role: 'engenheiro de software',
 		org: 'avita insurtech & lawtech',
 		orgHref: 'https://avitaseg.com.br',
 		tech: ['csharp', 'dotnet', 'react', 'angular', 'mysql', 'modelagem', 'api'],
-		what: 'primeiro engenheiro da empresa, presente em todas as etapas do produto: concepção, desenvolvimento, homologação e entrega em produção.',
-		call: {
-			label: 'a decisão:',
-			text: 'quebrar o front em micro-frontends com SingleSPA, para que partes do produto pudessem evoluir e subir sem esperar umas pelas outras.',
-		},
+		what: 'integrei o desenvolvimento desde o início da empresa, presente em concepção, desenvolvimento, homologação e entrega em produção.',
 		did: [
 			{ text: 'APIs em .NET e front-ends em Angular, React e micro-frontends com SingleSPA' },
 			{ text: 'modelagem de schemas, consultas e operações de dados em MySQL' },
@@ -196,10 +182,6 @@ export const careerEntries: CareerEntry[] = [
 		orgHref: 'https://www.unasp.br',
 		tech: [],
 		what: 'último semestre da graduação, com as demais frentes encerradas para levar uma só até o fim: ensino a distância acessível para estudantes com deficiência auditiva, apoiado por chatbot. dados de matrícula do IBGE e do INEP como base, e um modelo de adaptação para plataformas como o Moodle.',
-		call: {
-			label: 'a decisão:',
-			text: 'encerrar as outras linhas de pesquisa para terminar uma. foi a que virou publicação internacional.',
-		},
 		did: [
 			{ text: 'melhor artigo na categoria trabalho completo', after: ' — enaic xxi, 2019' },
 			{
@@ -271,12 +253,22 @@ export type RailSegment = {
 
 export const railExtras: RailSegment[] = [
 	{
-		id: 'ito',
-		from: '2026-01',
+		id: 'produto',
+		from: '2025-12',
 		to: 'agora',
 		track: 'eng',
-		title: 'ito · projeto próprio',
-		target: '#projetos',
+		title: 'produto próprio',
+		target: '#agora-produto',
+	},
+	// o doutorado já é entrada da trajetória; este segmento só dá ao item do
+	// "agora" o mesmo hover dos demais
+	{
+		id: 'agora-doutorado',
+		from: '2026-08',
+		to: 'agora',
+		track: 'res',
+		title: 'doutorado em engenharia elétrica e computação · mackenzie',
+		target: '#agora-doutorado',
 	},
 ];
 
@@ -331,6 +323,10 @@ export type EducationItem = {
 
 export const education: EducationItem[] = [
 	{
+		title: 'doutorado em engenharia elétrica e computação',
+		meta: 'universidade presbiteriana mackenzie · 08/2026 — agora',
+	},
+	{
 		title: 'mestrado em engenharia elétrica e computação',
 		meta: 'universidade presbiteriana mackenzie · bolsista capes · 02/2024 — 03/2026',
 		description: 'dinâmica de autômatos celulares. publicação internacional no ASCAT 2026 e resumo no EMARC 2026.',
@@ -341,9 +337,3 @@ export const education: EducationItem[] = [
 		description: 'pesquisa em smart grids, sistemas multiagentes e tecnologia assistiva ao longo de toda a graduação. melhor artigo no enaic xxi, 2019.',
 	},
 ];
-
-/** Produção anterior, agregada: quatro títulos que não rendem quatro cards. */
-export const earlyPublications = {
-	title: 'quatro artigos em sistemas multiagentes e smart grids',
-	meta: 'enaic xviii, xix e xx · unasp · 2016 — 2018',
-};

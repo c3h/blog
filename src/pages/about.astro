@@ -4,7 +4,7 @@ import DecryptText from '../components/DecryptText.astro';
 import LinkCard from '../components/LinkCard.astro';
 import SectionHeader from '../components/SectionHeader.astro';
 import { ArrowUpRight } from '@lucide/astro';
-import { careerEntries, earlyPublications, education, techGroups } from '../data/career';
+import { careerEntries, education, techGroups } from '../data/career';
 import { projects } from '../data/projects';
 import { publications } from '../data/publications';
 import { buildRail, formatWhen, spellCount } from '../lib/career';
@@ -33,31 +33,6 @@ const resumeContact = [
 	...socialLinks.filter((item) => item.href !== site.social.email).map((item) => printUrl(item.href)),
 ];
 
-/** Três coisas que carrego de um time para o outro, cada uma com onde foi exercida. */
-const method = [
-	{
-		title: 'o dado antes da feature.',
-		text: 'modelo o banco e fecho o contrato da api antes de escrever a primeira tela. código ruim se refatora numa tarde; dado mal modelado se paga em migração, em bug de relatório e em decisão de produto tomada com o número errado.',
-		where: [
-			{ href: '#e-sinergy', label: 'sinergyrh' },
-			{ href: '#e-avita', label: 'avita' },
-			{ href: '#e-ibgc', label: 'ibgc' },
-		],
-	},
-	{
-		title: 'teste é permissão para mudar de ideia.',
-		text: 'cobertura não é meta de dashboard. é o que permite alguém abrir o sistema seis meses depois — talvez eu mesmo, talvez alguém que nunca o viu — e mexer onde precisa sem pedir licença a ninguém.',
-		where: [{ href: '#e-mottu', label: 'mottu' }],
-	},
-	{
-		title: 'explicar faz parte de construir.',
-		text: 'se não consigo ensinar a decisão, ela provavelmente ainda não está pronta. dei aula para oitenta pessoas e publiquei pesquisa revisada por pares: os dois cobram o mesmo tipo de clareza, e os dois deixam pouco espaço para hand-waving.',
-		where: [
-			{ href: '#e-trybe', label: 'trybe' },
-			{ href: '#e-mackenzie', label: 'mestrado' },
-		],
-	},
-];
 ---
 
 <BaseLayout title="Sobre" description={description}>
@@ -78,10 +53,10 @@ const method = [
 			</p>
 
 			<p class="page-description">
-				construo back-end para produto desde 2018: apis em node e .net, dados modelados
-				antes da primeira feature e testes que deixam o time mudar de ideia depois.
-				fui o primeiro engenheiro de uma insurtech, levantei um produto do zero ao lado
-				dos fundadores e formei cerca de oitenta desenvolvedores como instrutor de back-end.
+				construo back-end desde 2018, em node e .net. participei do desenvolvimento de uma
+				insurtech desde o início da empresa, da concepção à entrega em produção; levantei um
+				produto novo ao lado dos fundadores de uma empresa de rh; e fui instrutor de back-end.
+				hoje curso o doutorado em engenharia elétrica e computação.
 			</p>
 
 			<nav
@@ -122,22 +97,25 @@ const method = [
 				</p>
 			</div>
 
+			{/* uma coluna por mês, duas células (engenharia em cima, pesquisa embaixo)
+			    e um rótulo onde o ano começa. a régua quebra linha como texto: a
+			    célula tem tamanho fixo e o grid preenche a largura que houver — dez
+			    anos ou trinta cabem sem reprojetar. */}
 			<div class="cv-rail" id="rail" role="img" aria-label={railLabel}>
-				{rail.tracks.map((track) => (
-					<div class="cv-track" data-track={track.name} style={`--months:${rail.total}`}>
-						{track.cells.map((on, i) => (
-							<div class="cv-cell" data-i={i} data-on={on ? '1' : undefined}></div>
-						))}
-					</div>
-				))}
-			</div>
-
-			<div class="cv-rail-years" style={`--months:${rail.total}`} aria-hidden="true">
-				{rail.years.map((year) => (
-					<span style={`grid-column:${year.column} / span ${year.span}`} data-minor={year.minor ? '1' : undefined}>
-						{year.year}
-					</span>
-				))}
+				{Array.from({ length: rail.total }, (_, i) => {
+					const month = rail.origin + i;
+					const starts = month % 12 === 0;
+					return (
+						<div class="cv-month">
+							{rail.tracks.map((track) => (
+								<div class="cv-cell" data-track={track.name} data-i={i} data-on={track.cells[i] ? '1' : undefined}></div>
+							))}
+							<span class="cv-year" data-tick={starts ? '1' : undefined} aria-hidden="true">
+								{starts || i === 0 ? Math.floor(month / 12) : ''}
+							</span>
+						</div>
+					);
+				})}
 			</div>
 
 			<p class="cv-readout mt-3 min-h-5.5 font-mono text-sm text-subtle" id="readout" aria-live="polite"></p>
@@ -150,22 +128,29 @@ const method = [
 				<li class="flex gap-3">
 					<span class="cv-pip" aria-hidden="true"></span>
 					<p class="text-sm leading-5.5 text-muted sm:text-base">
-						<b class="font-semibold text-text">aberto a novas posições de back-end, remotas.</b> times pequenos,
-						produto de verdade e liberdade para decidir arquitetura.
+						<b class="font-semibold text-text">disponível para consultoria e freelas de back-end, remoto.</b>
+						escopo fechado ou acompanhamento contínuo, de preferência em times pequenos.
 					</p>
 				</li>
-				<li class="flex gap-3">
+				<li class="flex gap-3" id="agora-produto">
 					<span class="cv-pip" aria-hidden="true"></span>
 					<p class="text-sm leading-5.5 text-muted sm:text-base">
-						escrevendo o <a class="link-inline" href="https://github.com/c3h/ito">ito</a>, um issue tracker
-						para terminal — binário único, sqlite, feito para trabalhar junto com agentes de ia.
+						desde dezembro de 2025, construindo um produto próprio que ainda não foi a público:
+						nestjs com graphql federado, postgres com drizzle e row-level security, next.js no front.
 					</p>
 				</li>
 				<li class="flex gap-3">
 					<span class="cv-pip" data-idle aria-hidden="true"></span>
 					<p class="text-sm leading-5.5 text-muted sm:text-base">
-						mestrado defendido e aprovado em março de 2026, com
-						<a class="link-inline" href="https://doi.org/10.1007/978-3-032-18612-6_20">artigo publicado pela springer</a>
+						nas horas vagas, o <a class="link-inline" href="https://github.com/c3h/ito">ito</a>, um issue
+						tracker para terminal em binário único e sqlite, pensado para uso por agentes de ia.
+					</p>
+				</li>
+				<li class="flex gap-3" id="agora-doutorado">
+					<span class="cv-pip" aria-hidden="true"></span>
+					<p class="text-sm leading-5.5 text-muted sm:text-base">
+						doutorado iniciado em agosto de 2026 na mackenzie, na sequência do mestrado defendido em março,
+						com <a class="link-inline" href="https://doi.org/10.1007/978-3-032-18612-6_20">artigo publicado pela springer</a>
 						sobre dinâmica de autômatos celulares.
 					</p>
 				</li>
@@ -205,27 +190,27 @@ const method = [
 				mostra onde ela foi exercida — e por quanto tempo.
 			</p>
 
-			<div class="cv-js-only mt-7 grid gap-3.5" id="filter">
-				{techGroups.map((group) => (
-					<div>
-						<p class="font-mono text-xs uppercase tracking-[0.24em] text-subtle">{group.label}</p>
-						<div class="mt-2 flex flex-wrap gap-1.5" role="group" aria-label={group.label}>
-							{group.items.map((item) => (
-								<button
-									class="cv-chip border hairline px-2.5 py-1 text-sm text-muted transition hover:border-accent hover:text-accent aria-pressed:border-accent aria-pressed:text-accent"
-									data-tech={item.id}
-									aria-pressed="false"
-								>
-									{item.label}
-								</button>
-							))}
-						</div>
-					</div>
-				))}
-				<p class="min-h-5.5 text-sm leading-5.5 text-subtle" id="filter-status" aria-live="polite"></p>
+			<div class="cv-js-only mt-5" id="filter">
+				{/* uma fileira só: os grupos sobrevivem na ordem dos chips, não em títulos */}
+				<div class="flex flex-wrap items-baseline gap-x-2 gap-y-1 font-mono text-sm leading-6" role="group" aria-label="filtrar por tecnologia">
+					<span class="text-subtle">filtrar:</span>
+					{techGroups.flatMap((group) => [...group.items]).map((item, index) => (
+						<>
+							{index > 0 && <span aria-hidden="true" class="text-line">·</span>}
+							<button
+								class="cv-chip text-muted transition hover:text-accent aria-pressed:text-accent aria-pressed:underline aria-pressed:underline-offset-4"
+								data-tech={item.id}
+								aria-pressed="false"
+							>
+								{item.label}
+							</button>
+						</>
+					))}
+				</div>
+				<p class="mt-2 text-sm leading-5.5 text-subtle empty:hidden" id="filter-status" aria-live="polite"></p>
 			</div>
 
-			<div class="cv-timeline mt-7" id="timeline" data-density="completo">
+			<div class="cv-timeline mt-5" id="timeline" data-density="completo">
 				{careerEntries.map((entry) => (
 					<article
 						class="cv-entry relative pb-9 pl-5 last:pb-0"
@@ -246,11 +231,6 @@ const method = [
 							</span>
 						</h3>
 						<p class="mt-2 text-sm leading-5.5 text-muted sm:text-base">{entry.what}</p>
-						{entry.call && (
-							<div class="cv-call mt-3 border-l pl-3 text-sm leading-5.5 text-text hairline sm:text-base">
-								<span class="text-subtle">{entry.call.label}</span> {entry.call.text}
-							</div>
-						)}
 						{entry.did && (
 							<ul class="cv-did mt-3 grid gap-1.5 text-sm leading-5.5 text-muted sm:text-base">
 								{entry.did.map((bullet) => (
@@ -271,29 +251,27 @@ const method = [
 			</div>
 		</section>
 
-		<!-- ========================= método ========================= -->
-		<section class="page-rule py-10 sm:py-12" id="metodo">
-			<SectionHeader title="como eu trabalho" />
-			<p class="cv-section-lead -mt-4 text-sm leading-5.5 text-muted sm:text-base">
-				três coisas que carrego de um time para o outro.
-			</p>
+		<!-- ========================= formação ========================= -->
+		<section class="page-rule py-10 sm:py-12" id="formacao">
+			<SectionHeader title="formação" />
+			<div class="page-list">
+				{education.map((item) => (
+					<LinkCard title={item.title} meta={item.meta} description={item.description} headingLevel="h3" />
+				))}
+			</div>
+		</section>
 
-			<div class="cv-method mt-7 grid gap-7 sm:gap-9">
-				{method.map((item) => (
-					<div>
-						<h3 class="text-lg font-semibold text-text sm:text-[1.25rem]">
-							<span class="text-accent" aria-hidden="true">— </span>{item.title}
-						</h3>
-						<p class="mt-2.5 text-sm leading-5.5 text-muted sm:text-base">{item.text}</p>
-						<p class="cv-where mt-3 text-xs text-subtle sm:text-sm">
-							onde: {item.where.map((ref, index) => (
-								<>
-									{index > 0 && ' · '}
-									<a class="link-inline" href={ref.href}>{ref.label}</a>
-								</>
-							))}
-						</p>
-					</div>
+		<!-- ========================= publicações ========================= -->
+		<section class="page-rule py-10 sm:py-12" id="publicacoes">
+			<SectionHeader title="publicações" href="/publications/" linkLabel="todas as publicações" />
+			<div class="page-list">
+				{publications.map((publication) => (
+					<LinkCard
+						title={publication.title}
+						meta={`${publication.authors} · ${publication.venue} · ${publication.country} · ${publication.year}`}
+						href={publication.href}
+						headingLevel="h3"
+					/>
 				))}
 			</div>
 		</section>
@@ -312,25 +290,6 @@ const method = [
 						pills={project.stack}
 					/>
 				))}
-			</div>
-		</section>
-
-		<!-- ========================= formação e publicações ========================= -->
-		<section class="page-rule py-10 sm:py-12" id="formacao">
-			<SectionHeader title="formação e publicações" href="/publications/" linkLabel="todas as publicações" />
-			<div class="page-list">
-				{education.map((item) => (
-					<LinkCard title={item.title} meta={item.meta} description={item.description} headingLevel="h3" />
-				))}
-				{publications.map((publication) => (
-					<LinkCard
-						title={publication.title}
-						meta={`${publication.authors} · ${publication.venue} · ${publication.country} · ${publication.year}`}
-						href={publication.href}
-						headingLevel="h3"
-					/>
-				))}
-				<LinkCard title={earlyPublications.title} meta={earlyPublications.meta} headingLevel="h3" />
 			</div>
 		</section>
 
@@ -410,60 +369,52 @@ const method = [
 	}
 
 	.cv .cv-rail {
+		--cell-size: 0.75rem;
 		display: grid;
+		grid-template-columns: repeat(auto-fill, var(--cell-size));
+		gap: 0.875rem 1px;
+	}
+	.cv .cv-month {
+		display: grid;
+		grid-template-rows: var(--cell-size) var(--cell-size) auto;
 		gap: 3px;
 	}
-	.cv .cv-track {
-		display: grid;
-		grid-template-columns: repeat(var(--months), minmax(0, 1fr));
-		gap: 1px;
-	}
 	.cv .cv-cell {
-		height: 0.75rem;
+		width: var(--cell-size);
+		height: var(--cell-size);
 		background: var(--cell-empty);
 		transition: background 160ms ease;
-	}
-	@media (width >= 40rem) {
-		.cv .cv-cell {
-			height: 1rem;
-		}
 	}
 	.cv .cv-cell[data-on='1'] {
 		background: var(--cell);
 	}
 	/* a trilha de pesquisa é a mesma malha em meio-tom: outra natureza, não
-	   menos importante. meio-tom sobrevive a células de 2px no celular;
-	   contorno de 1px, não. */
-	.cv .cv-track[data-track='res'] .cv-cell[data-on='1'] {
+	   menos importante. */
+	.cv .cv-cell[data-track='res'][data-on='1'] {
 		background: var(--cell-soft);
 	}
 	/* estado ativo: hover na régua, hover numa entrada, ou filtro por tecnologia */
 	.cv .cv-cell[data-hot='1'] {
 		background: var(--accent);
 	}
-	.cv .cv-track[data-track='res'] .cv-cell[data-hot='1'] {
+	.cv .cv-cell[data-track='res'][data-hot='1'] {
 		background: color-mix(in srgb, var(--accent) 55%, var(--cell-empty));
 	}
-
-	.cv .cv-rail-years {
-		margin-top: 0.5rem;
-		display: grid;
-		grid-template-columns: repeat(var(--months), minmax(0, 1fr));
+	/* o rótulo do ano mora na coluna de janeiro e transborda para a direita
+	   sobre as colunas vizinhas, que não têm texto */
+	.cv .cv-year {
+		margin-top: 0.125rem;
+		height: 0.875rem;
 		color: var(--subtle);
 		font-family: var(--font-mono);
 		font-size: 0.625rem;
-	}
-	.cv .cv-rail-years span {
-		grid-row: 1;
 		letter-spacing: 0.04em;
+		line-height: 0.875rem;
+		white-space: nowrap;
 	}
-	.cv .cv-rail-years span[data-minor] {
-		display: none;
-	}
-	@media (width >= 34rem) {
-		.cv .cv-rail-years span[data-minor] {
-			display: block;
-		}
+	.cv .cv-year[data-tick='1'] {
+		border-left: 1px solid var(--line);
+		padding-left: 0.25rem;
 	}
 	.cv .cv-readout b {
 		color: var(--text);
@@ -487,9 +438,6 @@ const method = [
 	}
 
 	/* ---------- filtro ---------- */
-	.cv .cv-chip[aria-pressed='true'] {
-		background: color-mix(in srgb, var(--accent) 9%, transparent);
-	}
 	.cv .cv-clear {
 		color: inherit;
 		text-decoration: underline;
@@ -536,7 +484,7 @@ const method = [
 			top: 0.3125rem;
 		}
 	}
-	/* alvo de âncora vinda da seção "como eu trabalho" */
+	/* alvo de âncora (links internos para uma posição) */
 	.cv .cv-entry:target::before {
 		background: var(--accent);
 		box-shadow: inset 0 0 0 1px var(--accent);
@@ -560,7 +508,6 @@ const method = [
 	}
 
 	/* modo resumo: o essencial de cada posição, em uma tela */
-	.cv .cv-timeline[data-density='resumo'] .cv-call,
 	.cv .cv-timeline[data-density='resumo'] .cv-did {
 		display: none;
 	}
@@ -656,8 +603,9 @@ const method = [
 		.cv .cv-rail-block {
 			padding-top: 0.7rem !important;
 		}
-		.cv .cv-cell {
-			height: 6pt;
+		.cv .cv-rail {
+			--cell-size: 6pt;
+			gap: 8pt 1px;
 		}
 		.cv .cv-now {
 			gap: 0.35rem;
@@ -679,16 +627,12 @@ const method = [
 		.cv .cv-entry > * {
 			margin-top: 0.3rem !important;
 		}
-		.cv .cv-call {
-			break-inside: avoid;
-		}
 		.cv .cv-did {
 			gap: 0.1rem !important;
 		}
 		/* o papel ignora resumo e filtro: um currículo impresso pela metade não
 		   serve a ninguém, e desfazer os controles no clique tiraria da tela o
 		   estado que o leitor tinha montado */
-		.cv .cv-timeline[data-density='resumo'] .cv-call,
 		.cv .cv-timeline[data-density='resumo'] .cv-did {
 			display: grid !important;
 		}
@@ -698,17 +642,6 @@ const method = [
 		.cv .cv-timeline[data-filtering] .cv-entry[data-hit]::before {
 			background: var(--bg);
 			box-shadow: inset 0 0 0 1px var(--subtle);
-		}
-		.cv .cv-method {
-			margin-top: 0.6rem !important;
-			gap: 0.7rem !important;
-		}
-		.cv .cv-method > div {
-			break-inside: avoid;
-		}
-		.cv .cv-method p,
-		.cv .cv-where {
-			margin-top: 0.25rem !important;
 		}
 		.cv .page-list {
 			margin-top: 0.5rem !important;
@@ -759,9 +692,9 @@ const method = [
 		// build: resolvidos uma vez, nunca reconsultados no meio de uma interação
 		const nodes = new Map(model.map((item) => [item, document.querySelector<HTMLElement>(item.target)]));
 		const nodeOf = (item: RailItem) => nodes.get(item) ?? null;
-		const tracks = Array.from(rail.querySelectorAll<HTMLElement>('.cv-track')).map((el) => ({
-			name: el.dataset.track as 'eng' | 'res',
-			cells: Array.from(el.children) as HTMLElement[],
+		const tracks = (['eng', 'res'] as const).map((name) => ({
+			name,
+			cells: Array.from(rail.querySelectorAll<HTMLElement>(`.cv-cell[data-track='${name}']`)),
 		}));
 		const chips = Array.from(document.querySelectorAll<HTMLButtonElement>('.cv-chip'));
 		const densityBtns = Array.from(document.querySelectorAll<HTMLButtonElement>('.cv-density-btn'));
@@ -837,7 +770,7 @@ const method = [
 			const here = occupancy[i];
 			readout.innerHTML =
 				`<span class="mo">${labelOf(i)}</span> · ` +
-				(here.length ? here.map((item) => `<b>${item.title}</b>`).join(' + ') : 'sem registro');
+				(here.length ? [...new Set(here.map((item) => `<b>${item.title}</b>`))].join(' + ') : 'sem registro');
 			hotSet(cursorAt(i));
 		});
 
