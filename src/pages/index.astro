@@ -60,10 +60,15 @@ const featuredPublications = publications.slice(0, 3);
 	</section>
 
 	<section class="page-rule py-10 sm:py-12">
+		<SectionHeader title="blog" href="/blog/" linkLabel="todos os posts" />
+		<PostList posts={posts} />
+	</section>
+
+	<section class="page-rule py-10 sm:py-12 [&>div]:!mb-0">
 		<SectionHeader title="ferramentas" href="/uses/" linkLabel="detalhes" />
 	</section>
 
-	<section class="page-rule py-10 sm:py-12">
+	<section class="page-rule pt-10 sm:pt-12">
 		<SectionHeader title="publicações" href="/publications/" linkLabel="todas as publicações" />
 		<div class="-mt-4 flex flex-col gap-2">
 			{featuredPublications.map((publication) => (
@@ -77,10 +82,5 @@ const featuredPublications = publications.slice(0, 3);
 				/>
 			))}
 		</div>
-	</section>
-
-	<section class="page-rule pt-10 sm:pt-12">
-		<SectionHeader title="blog" href="/blog/" linkLabel="todos os posts" />
-		<PostList posts={posts} />
 	</section>
 </BaseLayout>
