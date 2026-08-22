@@ -55,7 +55,7 @@ const resumeContact = [
 			<p class="page-description">
 				construo back-end desde 2018, em node e .net. participei do desenvolvimento de uma
 				insurtech desde o início da empresa, da concepção à entrega em produção; levantei um
-				produto novo ao lado dos fundadores de uma empresa de rh; e fui instrutor de back-end.
+				produto novo ao lado dos fundadores; e fui instrutor de back-end.
 				hoje curso o doutorado em engenharia elétrica e computação.
 			</p>
 
@@ -70,9 +70,9 @@ const resumeContact = [
 					</>
 				))}
 				<span aria-hidden="true" class="cv-sep text-line">|</span>
-				<button type="button" class="cv-print-link transition hover:text-accent" data-print-resume>
+				<a class="transition hover:text-accent" href="/daniel-gimigliano-cv.pdf" download>
 					currículo em pdf
-				</button>
+				</a>
 				<span class="cv-print-only">{resumeContact.join(' · ')}</span>
 			</nav>
 		</section>
@@ -344,15 +344,6 @@ const resumeContact = [
 		display: none;
 	}
 
-	/* "currículo em pdf" é uma ação, não um destino: botão que se lê como link */
-	.cv .cv-print-link {
-		color: inherit;
-		background: none;
-		border: 0;
-		padding: 0;
-		cursor: pointer;
-	}
-
 	/* ============================================================
 	   régua — o elemento de assinatura. um mês por célula, em duas
 	   trilhas. é um diagrama espaço-tempo, e também o índice da página:
@@ -531,8 +522,10 @@ const resumeContact = [
 	}
 
 	/* ============================================================
-	   impressão — "currículo em pdf" precisa produzir um currículo de
-	   verdade, não uma captura da tela escura. O reset de tema e o corte
+	   impressão — ctrl+p na página precisa produzir um currículo de verdade,
+	   não uma captura da tela escura. (o arquivo em public/daniel-gimigliano-cv.pdf,
+	   servido pelo botão "baixar pdf", é mantido à parte e copiado para lá à mão;
+	   não sai desta impressão.) O reset de tema e o corte
 	   do cromo do site são do site inteiro e moram em global.css; aqui
 	   fica só a calibragem do currículo.
 	   ============================================================ */
@@ -876,10 +869,5 @@ const resumeContact = [
 				for (const other of densityBtns) other.setAttribute('aria-pressed', String(other === btn));
 			});
 		}
-
-		/* ---------- impressão ---------- */
-		// o papel sai sempre completo e sem filtro pelo CSS de impressão: o estado
-		// que o leitor montou na tela continua lá quando ele volta do diálogo
-		document.querySelector('[data-print-resume]')?.addEventListener('click', () => window.print());
 	}
 </script>
