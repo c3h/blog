@@ -213,7 +213,7 @@ const resumeContact = [
 			<div class="cv-timeline mt-5" id="timeline" data-density="completo">
 				{careerEntries.map((entry) => (
 					<article
-						class="cv-entry relative pb-9 pl-5 last:pb-0"
+						class="cv-entry relative pb-[1.7rem] pl-5 last:pb-0"
 						id={entry.id}
 						data-tech={entry.tech.join(' ')}
 						data-from={entry.from}
@@ -501,9 +501,6 @@ const resumeContact = [
 	/* modo resumo: o essencial de cada posição, em uma tela */
 	.cv .cv-timeline[data-density='resumo'] .cv-did {
 		display: none;
-	}
-	.cv .cv-timeline[data-density='resumo'] .cv-entry {
-		padding-bottom: 1.7rem;
 	}
 
 	/* filtro ativo: contexto preservado, foco deslocado */
