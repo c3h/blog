@@ -2,7 +2,7 @@
 import { ArrowRight, Search, X } from '@lucide/astro';
 import { projects } from '../data/projects';
 import { getPublishedPosts, postHref } from '../lib/posts';
-import { navItems } from '../lib/site';
+import { navItems, secondaryNav } from '../lib/site';
 
 type CommandType = 'page' | 'post' | 'project';
 type Command = {
@@ -24,6 +24,7 @@ const toCommand = (title: string, subtitle: string, href: string, type: CommandT
 const posts = await getPublishedPosts();
 const commands: Command[] = [
 	...navItems.map((item) => toCommand(item.label, `Ir para ${item.href}`, item.href, 'page')),
+	...secondaryNav.map((item) => toCommand(item.label, `Ir para ${item.href}`, item.href, 'page')),
 	...posts.map((post) => toCommand(post.data.title, post.data.description, postHref(post), 'post')),
 	...projects.map((project) => toCommand(project.title, project.description, project.href, 'project')),
 ];

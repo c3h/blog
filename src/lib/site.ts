@@ -17,12 +17,12 @@ export const site = {
 
 export const navItems = [
 	{ href: '/', label: 'início', key: 'i' },
-	{ href: '/blog/', label: 'blog', key: 'b' },
 	{ href: '/projects/', label: 'projetos', key: 'p' },
 	{ href: '/about/', label: 'sobre', key: 's' },
 ] as const;
 
 export const secondaryNav = [
+	{ href: '/blog/', label: 'blog' },
 	{ href: '/uses/', label: 'ferramentas' },
 	{ href: '/publications/', label: 'publicações' },
 ] as const;
