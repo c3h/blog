@@ -8,7 +8,7 @@ type Note = { kind: 'pos' | 'neg'; text: string };
 
 type Effort = { typical: number; max: number };
 
-const effortLevels = ['baixo', 'médio', 'alto', 'máximo'] as const;
+const effortLevels = ['low', 'medium', 'high', 'xhigh', 'max'] as const;
 
 const effortClass = (level: number, effort: { typical: number; max: number }) => {
 	if (level <= effort.typical) return 'text-accent';
@@ -40,6 +40,7 @@ const icons = {
 	gemini: monochrome('/icons/gemini.svg'),
 	go: { light: '/icons/go-light.svg', dark: '/icons/go-dark.svg' },
 	kimi: monochrome('/icons/kimi.svg'),
+	pi: { light: '/icons/pi-light.svg', dark: '/icons/pi-dark.svg' },
 } satisfies Record<string, Icon>;
 
 const sections: Section[] = [
@@ -47,10 +48,10 @@ const sections: Section[] = [
 		title: 'Modelos',
 		items: [
 			{
-				name: 'Fable 5',
+				name: 'Fable 5.1',
 				meta: 'planejamento',
 				icon: icons.claude,
-				effort: { typical: 1, max: 3 },
+				effort: { typical: 1, max: 4 },
 				description: 'modelo principal para planejar e orquestrar a implementação entre o GPT ou Opus',
 				notes: [
 					{ kind: 'pos', text: 'excelente para planejar e revisar código' },
@@ -59,10 +60,10 @@ const sections: Section[] = [
 				],
 			},
 			{
-				name: 'GPT-5.6 Sol',
-				meta: 'implementação',
+				name: 'GPT-6 Astra',
+				meta: 'implementação e planejamento',
 				icon: icons.openai,
-				effort: { typical: 1, max: 3 },
+				effort: { typical: 2, max: 4 },
 				description: 'modelo principal para implementação',
 				notes: [
 					{ kind: 'pos', text: 'segue bem instruções claras' },
@@ -75,7 +76,7 @@ const sections: Section[] = [
 				name: 'Opus 5',
 				meta: 'implementação',
 				icon: icons.claude,
-				effort: { typical: 1, max: 3 },
+				effort: { typical: 2, max: 4 },
 				description: 'usado normalmente para implementação',
 				notes: [
 					{ kind: 'pos', text: 'excelente em UI & frontend' },
@@ -85,25 +86,14 @@ const sections: Section[] = [
 				],
 			},
 			{
-				name: 'GPT-5.6 Terra',
-				meta: 'implementação',
-				icon: icons.openai,
-				effort: { typical: 2, max: 3 },
-				description: 'modelo para implementação com escopo bem definido',
-				notes: [
-					{ kind: 'pos', text: 'segue bem instruções claras' },
-					{ kind: 'neg', text: 'sensível à qualidade do prompt' },
-				],
-			},
-			{
 				name: 'GPT-5.6 Luna',
 				meta: 'exploração',
 				icon: icons.openai,
-				effort: { typical: 2, max: 3 },
+				effort: { typical: 3, max: 4 },
 				description: 'modelo para exploração e review',
 				notes: [
 					{ kind: 'pos', text: 'segue bem instruções claras' },
-					{ kind: 'pos', text: 'excelente custo x benefício' },
+					{ kind: 'pos', text: 'quase de graça na assinutara' },
 					{ kind: 'neg', text: 'sensível à qualidade do prompt' },
 				],
 			},
@@ -112,20 +102,6 @@ const sections: Section[] = [
 	{
 		title: 'Harness',
 		items: [
-			{
-				name: 'Cursor',
-				meta: 'melhor editor',
-				icon: icons.cursor,
-				tags: ['ide', 'vscode', 'agente'],
-				description: 'ainda acho o melhor editor com agente.',
-				notes: [
-					{ kind: 'pos', text: 'baseado no VS Code' },
-					{ kind: 'pos', text: 'bons agentes na nuvem' },
-					{ kind: 'pos', text: 'modelos bem ajustados para a plataforma' },
-					{ kind: 'neg', text: 'custo-benefício menor que outras assinaturas' },
-					{ kind: 'neg', text: 'recursos e design mudam rápido demais' },
-				],
-			},
 			{
 				name: 'Claude Code',
 				meta: 'harness principal',
@@ -172,7 +148,7 @@ const sections: Section[] = [
 				meta: 'Pro',
 				icon: icons.openai,
 				tags: ['codex', 'chatgpt'],
-				description: 'uso o plano de US$100. os limites de uso são bem generosos.',
+				description: 'os limites de uso são bem generosos.',
 				notes: [
 					{ kind: 'pos', text: 'melhor assinatura entre qualidade e volume de uso' },
 					{ kind: 'pos', text: 'serve o Codex e o ecossistema da OpenAI' },
@@ -185,25 +161,11 @@ const sections: Section[] = [
 				meta: 'Max',
 				icon: icons.claude,
 				tags: ['claude code', 'desktop'],
-				description: 'uso o plano Max de US$100.',
+				description: 'claude code cli, melhor harness.',
 				notes: [
 					{ kind: 'pos', text: 'excelente conjunto de modelos' },
 					{ kind: 'neg', text: 'modelos caros fazem a cota acabar rapidamente' },
 					{ kind: 'neg', text: 'assinatura fica mais restrita ao ecossistema Claude' },
-				],
-			},
-			{
-				name: 'Cursor',
-				meta: 'Pro',
-				icon: icons.cursor,
-				tags: ['ide', 'agent', 'multi-modelo'],
-				description: 'vale pela forte integração com a IDE e pelos agentes em nuvem',
-				notes: [
-					{ kind: 'pos', text: 'editor sólido' },
-					{ kind: 'pos', text: 'bons agentes em nuvem' },
-					{ kind: 'pos', text: 'excelente conjunto de modelos' },
-					{ kind: 'pos', text: 'tem CLI' },
-					{ kind: 'neg', text: 'volume de uso incluído é bem menor que nas outras assinaturas' },
 				],
 			},
 			{
@@ -222,6 +184,19 @@ const sections: Section[] = [
 	{
 		title: 'Experimentação',
 		items: [
+			{
+				name: 'Pi',
+				meta: 'minimalista',
+				icon: icons.pi,
+				tags: ['cli', 'open source', 'extensível'],
+				description: 'harness minimalista de agente: quatro ferramentas por padrão e todo o resto vindo de skills e extensões.',
+				notes: [
+					{ kind: 'pos', text: 'open-source e fácil de moldar ao próprio fluxo' },
+					{ kind: 'pos', text: 'núcleo pequeno, sem prompt inflado a cada interação' },
+					{ kind: 'neg', text: 'exige montar quase tudo antes de virar rotina' },
+					{ kind: 'neg', text: 'não validado contra os demais haness' },
+				],
+			},
 			{
 				name: 'Kimi K2.5 Turbo',
 				meta: 'via Fireworks',
