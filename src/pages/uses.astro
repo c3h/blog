@@ -41,6 +41,9 @@ const icons = {
 	go: { light: '/icons/go-light.svg', dark: '/icons/go-dark.svg' },
 	kimi: monochrome('/icons/kimi.svg'),
 	pi: { light: '/icons/pi-light.svg', dark: '/icons/pi-dark.svg' },
+	meta: { light: '/icons/meta-light.svg', dark: '/icons/meta-dark.svg' },
+	deepseek: { light: '/icons/deepseek-light.svg', dark: '/icons/deepseek-dark.svg' },
+	glm: { light: '/icons/glm-light.svg', dark: '/icons/glm-dark.svg' },
 } satisfies Record<string, Icon>;
 
 const sections: Section[] = [
@@ -168,6 +171,11 @@ const sections: Section[] = [
 					{ kind: 'neg', text: 'assinatura fica mais restrita ao ecossistema Claude' },
 				],
 			},
+		],
+	},
+	{
+		title: 'Experimentação',
+		items: [
 			{
 				name: 'OpenCode',
 				meta: 'Go',
@@ -179,11 +187,33 @@ const sections: Section[] = [
 					{ kind: 'neg', text: 'volume de uso baixo' },
 				],
 			},
-		],
-	},
-	{
-		title: 'Experimentação',
-		items: [
+			{
+				name: 'GLM 5.3 Flash',
+				meta: 'Z.ai',
+				icon: icons.glm,
+				description: 'modelo com melhor custo-benefício',
+				notes: [
+					{ kind: 'pos', text: 'muito barato' },
+					{ kind: 'neg', text: 'ainda perde para o gpt luna quando se trata de code review' },
+				],
+			},
+			{
+				name: 'Muse Spark 1.3',
+				meta: 'Meta',
+				icon: icons.meta,
+				description: 'muito rápido, mas muito sensível ao prompt',
+				notes: [
+				    { kind: 'pos', text: 'muito rápido' },
+				    { kind: 'neg', text: 'muito sensível ao prompt' },
+				],
+			},
+			{
+				name: 'DeepSeek V4.1 Flash',
+				meta: 'DeepSeek',
+				icon: icons.deepseek,
+				description: 'parece entender bem o prompt e o projeto.',
+				notes: [],
+			},
 			{
 				name: 'Pi',
 				meta: 'minimalista',
