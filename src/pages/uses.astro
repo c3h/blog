@@ -6,11 +6,12 @@ type Icon = { light: string; dark: string };
 
 type Note = { kind: 'pos' | 'neg'; text: string };
 
-type Effort = { typical: number; max: number };
+type Effort = { min: number; typical: number; max: number };
 
 const effortLevels = ['low', 'medium', 'high', 'xhigh', 'max'] as const;
 
-const effortClass = (level: number, effort: { typical: number; max: number }) => {
+const effortClass = (level: number, effort: Effort) => {
+	if (level < effort.min) return 'text-subtle opacity-40';
 	if (level <= effort.typical) return 'text-accent';
 	if (level <= effort.max) return 'text-subtle';
 	return 'text-subtle opacity-40';
@@ -50,53 +51,64 @@ const sections: Section[] = [
 	{
 		title: 'Modelos',
 		items: [
+		{
+			name: 'Opus 5.5',
+			meta: 'implementação',
+			icon: icons.claude,
+			effort: { min: 1, typical: 3, max: 4 },
+			description: 'principal para organização e implementação',
+			notes: [
+				{ kind: 'pos', text: 'excelente em UI & frontend' },
+				{ kind: 'pos', text: 'quase ilimitado no plano max' },
+			],
+		},
 			{
 				name: 'Fable 5.1',
 				meta: 'planejamento',
 				icon: icons.claude,
-				effort: { typical: 1, max: 4 },
-				description: 'modelo principal para planejar e orquestrar a implementação entre o GPT ou Opus',
+				effort: { min: 0, typical: 2, max: 4 },
+				description: 'modelo principal para planejar e orquestrar a implementação com o GPT ou o Opus',
 				notes: [
-					{ kind: 'pos', text: 'excelente para planejar e revisar código' },
+					{ kind: 'pos', text: 'excelente como orquestrador' },
 					{ kind: 'pos', text: 'excelente em UI & frontend' },
-					{ kind: 'neg', text: 'muito caro' },
+					{ kind: 'neg', text: 'consome muito da assinatura' },
 				],
 			},
 			{
 				name: 'GPT-6 Astra',
-				meta: 'implementação e planejamento',
+				meta: 'segunda opinião',
 				icon: icons.openai,
-				effort: { typical: 2, max: 4 },
-				description: 'modelo principal para implementação',
+				effort: { min: 0, typical: 2, max: 4 },
+				description: 'principal modelo para segunda opinião na tomada de decisões',
 				notes: [
-					{ kind: 'pos', text: 'segue bem instruções claras' },
+				    { kind: 'pos', text: 'excelente em capturar detalhes' },
 					{ kind: 'pos', text: 'excelente para tarefas de longa duração' },
+					{ kind: 'pos', text: 'excelente para revisão de PRs complexos' },
 					{ kind: 'neg', text: 'sensível à qualidade do prompt' },
-					{ kind: 'neg', text: 'tende a criar fallbacks e muitos testes' },
+					{ kind: 'neg', text: 'consome muito da assinatura' },
 				],
 			},
 			{
-				name: 'Opus 5',
+				name: 'GPT-6.1 Sol',
 				meta: 'implementação',
 				icon: icons.claude,
-				effort: { typical: 2, max: 4 },
-				description: 'usado normalmente para implementação',
+				effort: { min: 1, typical: 3, max: 4 },
+				description: 'usado principalmente para implementação',
 				notes: [
-					{ kind: 'pos', text: 'excelente em UI & frontend' },
-					{ kind: 'neg', text: 'sensível à qualidade do prompt' },
-					{ kind: 'neg', text: 'comportamento impactado em cada nível do raciocínio' },
-					{ kind: 'neg', text: 'voltado a resolver logo do que explorar' },
+					{ kind: 'pos', text: 'bom em issues bem definidas' },
+					{ kind: 'pos', text: 'modelo muito eficiente' },
+					{ kind: 'neg', text: 'um dos piores modelos para issues ux' },
 				],
 			},
 			{
 				name: 'GPT-5.6 Luna',
 				meta: 'exploração',
 				icon: icons.openai,
-				effort: { typical: 3, max: 4 },
+				effort: { min: 3, typical: 3, max: 4 },
 				description: 'modelo para exploração e review',
 				notes: [
 					{ kind: 'pos', text: 'segue bem instruções claras' },
-					{ kind: 'pos', text: 'quase de graça na assinutara' },
+					{ kind: 'pos', text: 'quase de graça na assinatura' },
 					{ kind: 'neg', text: 'sensível à qualidade do prompt' },
 				],
 			},
@@ -110,7 +122,7 @@ const sections: Section[] = [
 				meta: 'harness principal',
 				icon: icons.claude,
 				tags: ['cli', 'desktop', 'anthropic'],
-				description: 'meu principal harness, uso principalmente com o Fable para orquestrar implementação.',
+				description: 'meu principal harness. uso principalmente com o Fable para orquestrar a implementação.',
 				notes: [
 					{ kind: 'pos', text: 'melhor harness CLI' },
 					{ kind: 'pos', text: 'agents, skills e hooks' },
@@ -125,7 +137,7 @@ const sections: Section[] = [
 				notes: [
 					{ kind: 'pos', text: 'CLI muito bom e estável' },
 					{ kind: 'pos', text: 'desktop bonito e fácil de usar' },
-					{ kind: 'pos', text: 'mais genoroso que o Claude Code nos limites de uso' },
+					{ kind: 'pos', text: 'mais generoso que o Claude Code nos limites de uso' },
 				],
 			},
 			{
@@ -153,10 +165,10 @@ const sections: Section[] = [
 				tags: ['codex', 'chatgpt'],
 				description: 'os limites de uso são bem generosos.',
 				notes: [
-					{ kind: 'pos', text: 'melhor assinatura entre qualidade e volume de uso' },
+					{ kind: 'pos', text: 'melhor assinatura em equilíbrio entre qualidade e volume de uso' },
 					{ kind: 'pos', text: 'serve o Codex e o ecossistema da OpenAI' },
 					{ kind: 'pos', text: 'também pode alimentar outros harnesses' },
-					{ kind: 'neg', text: 'fica limitado aos modelos GPT' },
+					{ kind: 'neg', text: 'uso limitado aos modelos GPT' },
 				],
 			},
 			{
@@ -181,17 +193,19 @@ const sections: Section[] = [
 				meta: 'Go',
 				icon: icons.opencode,
 				tags: ['api'],
-				description: 'barato e bem generoso, mas não ao ponto de rodar trabalho pesado',
+				description: 'assinatura barata e bem generosa, mas não a ponto de rodar trabalho pesado',
 				notes: [
-					{ kind: 'pos', text: 'testar novos modelos, principalmente open-sources' },
+					{ kind: 'pos', text: 'testar novos modelos, principalmente open-source' },
+					{ kind: 'pos', text: 'testar pequenos projetos locais via API' },
 					{ kind: 'neg', text: 'volume de uso baixo' },
 				],
 			},
 			{
 				name: 'GLM 5.3 Flash',
 				meta: 'Z.ai',
+				ended: true,
 				icon: icons.glm,
-				description: 'modelo com melhor custo-benefício',
+				description: 'segue muito bem instruções, mas tenho gostado mais dos resultados do DeepSeek e das conversas com ele',
 				notes: [
 					{ kind: 'pos', text: 'muito barato' },
 					{ kind: 'neg', text: 'ainda perde para o gpt luna quando se trata de code review' },
@@ -200,8 +214,9 @@ const sections: Section[] = [
 			{
 				name: 'Muse Spark 1.3',
 				meta: 'Meta',
+				ended: true,
 				icon: icons.meta,
-				description: 'muito rápido, mas muito sensível ao prompt',
+				description: 'é um bom modelo, mas muito sensível ao prompt',
 				notes: [
 				    { kind: 'pos', text: 'muito rápido' },
 				    { kind: 'neg', text: 'muito sensível ao prompt' },
@@ -211,8 +226,12 @@ const sections: Section[] = [
 				name: 'DeepSeek V4.1 Flash',
 				meta: 'DeepSeek',
 				icon: icons.deepseek,
-				description: 'parece entender bem o prompt e o projeto.',
-				notes: [],
+				description: 'modelo com o qual é fácil interagir e que tem bom conhecimento',
+				notes: [
+                    { kind: 'pos', text: 'rápido na assinatura do OpenCode Go' },
+                    { kind: 'pos', text: 'implementa bem tarefas bem definidas e com escopo pequeno' },
+                    { kind: 'pos', text: 'pensa por muito tempo - pouco eficiente' },
+				],
 			},
 			{
 				name: 'Pi',
@@ -224,7 +243,7 @@ const sections: Section[] = [
 					{ kind: 'pos', text: 'open-source e fácil de moldar ao próprio fluxo' },
 					{ kind: 'pos', text: 'núcleo pequeno, sem prompt inflado a cada interação' },
 					{ kind: 'neg', text: 'exige montar quase tudo antes de virar rotina' },
-					{ kind: 'neg', text: 'não validado contra os demais haness' },
+					{ kind: 'neg', text: 'não validado contra os demais harnesses' },
 				],
 			},
 			{
