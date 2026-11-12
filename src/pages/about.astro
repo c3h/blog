@@ -1,870 +1,672 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import DecryptText from '../components/DecryptText.astro';
-import LinkCard from '../components/LinkCard.astro';
 import SectionHeader from '../components/SectionHeader.astro';
 import { ArrowUpRight } from '@lucide/astro';
-import { careerEntries, education, techGroups } from '../data/career';
+import { careerEntries } from '../data/career';
 import { projects } from '../data/projects';
 import { publications } from '../data/publications';
-import { buildRail, formatWhen, spellCount } from '../lib/career';
 import { site, socialLinks } from '../lib/site';
 import { printUrl } from '../lib/url';
 
-const rail = buildRail();
-
 const description =
-	'Currículo vivo de Daniel Gimigliano — engenheiro de software, back-end e produto. Oito anos mês a mês, com evidência para cada competência.';
+	'Daniel Gimigliano, engenheiro de software com foco em back-end e produto. Disponível para consultoria e freelas; pesquisa a dinâmica de autômatos celulares.';
 
-const railLabel = `Régua de atividade de ${rail.startLabel} até hoje, em duas trilhas: engenharia, e pesquisa e ensino. O detalhamento de cada período está na seção trajetória, abaixo.`;
+/** um link sem destino some em silêncio: o Astro omite o href e sobra um <a> morto. melhor quebrar o build */
+const need = (href: string | undefined, what: string) => {
+	if (!href) throw new Error(`/about: sem endereço para ${what}`);
+	return href;
+};
 
-/** o título conta o alcance da régua, e por isso não pode ser escrito à mão */
-const railHeading = `${spellCount(rail.spanYears)} anos, mês a mês`;
+/** o endereço de cada empresa tem uma fonte só: a trajetória */
+const orgHref = (id: string) => need(careerEntries.find((entry) => entry.id === id)?.orgHref, id);
+
+/** por onde passei, na ordem em que aconteceu. o nome é o de conversa, não a razão social */
+const before = [
+	{ label: 'ibgc', href: orgHref('e-ibgc') },
+	{ label: 'radix', href: orgHref('e-radix') },
+	{ label: 'avita', href: orgHref('e-avita') },
+	{ label: 'trybe', href: orgHref('e-trybe') },
+	{ label: 'mottu', href: orgHref('e-mottu') },
+	{ label: 'metro telworks', href: orgHref('e-metro') },
+	{ label: 'sinergyrh', href: orgHref('e-sinergy') },
+	{ label: 'capta', href: orgHref('e-capta') },
+];
+
+const projectHref = (title: string) => need(projects.find((project) => project.title === title)?.href, title);
+
+const ito = projectHref('ito');
+const code = projectHref('eca-adds-analysis');
+/** pelo DOI, não pelo ano: uma segunda publicação de 2026 não pode trocar este link */
+const PAPER_DOI = '10.1007/978-3-032-18612-6_20';
+const paper = need(publications.find((publication) => publication.href?.includes(PAPER_DOI))?.href, 'o artigo');
+const pdf = '/daniel-gimigliano-cv.pdf';
+
+const RULES = [30, 90, 110, 150, 184];
+const DEFAULT_RULE = 110;
 
 /**
- * Contato por extenso — impresso no PDF, nunca renderizado na tela.
+ * Contato por extenso — impresso, nunca renderizado na tela.
  * Na tela os endereços existem só como destino de link, longe de raspadores.
- * O domínio do site não entra: ele já está no e-mail, e repetido logo ao lado
- * era lido como um segundo endereço.
  */
-const resumeContact = [
+const printContact = [
 	printUrl(site.social.email),
 	site.phone,
 	...socialLinks.filter((item) => item.href !== site.social.email).map((item) => printUrl(item.href)),
 ];
-
 ---
 
 <BaseLayout title="Sobre" description={description}>
-	{/* marca a página como interativa antes do primeiro paint: os controles que
-	    dependem de JS ficam ocultos até aqui, em vez de aparecerem inertes */}
+	{/* marca a página como interativa antes do primeiro paint: sem JS o autômato
+	    não desenha, então nem os controles nem a figura ocupam espaço */}
 	<script is:inline>document.documentElement.dataset.js = '1';</script>
 
-	<div class="cv">
-		<!-- ========================= hero ========================= -->
-		<section class="page-header cv-hero">
+	<div class="about">
+		<section class="page-header">
 			<DecryptText
 				as="h1"
 				text="daniel gimigliano"
 				class="text-[2.4rem] font-bold leading-[1.1] tracking-[-0.01em] text-text sm:text-[3.3rem]"
 			/>
-			<p class="page-description !mt-3">
-				engenheiro de software · back-end e produto
-			</p>
+			<p class="page-description !mt-3">engenheiro de software · back-end e produto</p>
 
-			<p class="page-description">
-				construo back-end desde 2018, em node e .net. participei do desenvolvimento de uma
-				insurtech desde o início da empresa, da concepção à entrega em produção; levantei um
-				produto novo ao lado dos fundadores; e fui instrutor de back-end.
-				hoje curso o doutorado em engenharia elétrica e computação.
-			</p>
-
-			<nav
-				class="cv-contact mt-6 flex flex-wrap items-center gap-x-2.5 gap-y-2 text-xs lowercase text-subtle sm:text-sm"
-				aria-label="contato"
-			>
-				{socialLinks.map((item, index) => (
-					<>
-						{index > 0 && <span aria-hidden="true" class="cv-sep text-line">·</span>}
-						<a class="transition hover:text-accent" href={item.href}>{item.label}</a>
-					</>
-				))}
-				<span aria-hidden="true" class="cv-sep text-line">|</span>
-				<a class="transition hover:text-accent" href="/daniel-gimigliano-cv.pdf" download>
-					currículo em pdf
-				</a>
-				<span class="cv-print-only">{resumeContact.join(' · ')}</span>
-			</nav>
-		</section>
-
-		<!-- ===== régua: um mês por célula, duas trilhas ===== -->
-		<section class="page-rule cv-rail-block py-10 sm:py-12">
-			{/* onde estou e em que línguas trabalho. códigos de locale em vez de
-			    "português/inglês" — escaneiam mais rápido e falam a língua de quem
-			    lê um currículo de engenharia. fica encostado na régua porque é a
-			    mesma pergunta: onde, quando e em que termos eu trabalho. */}
-			<p class="cv-role-meta mb-3.5 text-xs text-subtle sm:text-sm">
-				engenheiro coelho, sp · remoto · pt-br nativo · en profissional
-			</p>
-
-			<div class="mb-3.5 flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1.5">
-				<h2 class="font-mono text-xs font-semibold uppercase tracking-[0.24em] text-muted sm:text-sm">
-					{railHeading}
-				</h2>
-				<p class="cv-legend flex flex-wrap gap-x-3.5 gap-y-1 font-mono text-xs text-subtle" aria-hidden="true">
-					<span class="inline-flex items-center gap-1.5"><i class="cv-swatch"></i> engenharia</span>
-					<span class="inline-flex items-center gap-1.5"><i class="cv-swatch cv-swatch-res"></i> pesquisa e ensino</span>
+			<div class="now">
+				<p>
+					trabalho com back-end desde 2018, em node e .net. gosto de acompanhar um sistema da concepção
+					até a produção, de preferência em times pequenos.
+				</p>
+				<p>
+					hoje construo um produto próprio, que ainda não foi a público, e nas horas vagas o
+					<a class="link-inline" href={ito} data-print-url={printUrl(ito)}>ito</a>, um issue tracker para terminal. também curso o doutorado em
+					engenharia elétrica e computação na mackenzie.
+				</p>
+				<p>
+					{/* numa linha só: quebra entre os fragmentos viraria espaço antes da vírgula */}
+					antes disso:{' '}
+					{before.map((item, index) => (<>{index > 0 && (index === before.length - 1 ? ' e ' : ', ')}<a class="link-inline" href={item.href}>{item.label}</a></>))}. o detalhe de cada passagem está no
+					<a class="link-inline" href={pdf} download data-print-url={printUrl(site.url + pdf)}>currículo em pdf</a>.
 				</p>
 			</div>
 
-			{/* uma coluna por mês, duas células (engenharia em cima, pesquisa embaixo)
-			    e um rótulo onde o ano começa. a régua quebra linha como texto: a
-			    célula tem tamanho fixo e o grid preenche a largura que houver — dez
-			    anos ou trinta cabem sem reprojetar. */}
-			<div class="cv-rail" id="rail" role="img" aria-label={railLabel}>
-				{Array.from({ length: rail.total }, (_, i) => {
-					const month = rail.origin + i;
-					const starts = month % 12 === 0;
-					return (
-						<div class="cv-month">
-							{rail.tracks.map((track) => (
-								<div class="cv-cell" data-track={track.name} data-i={i} data-on={track.cells[i] ? '1' : undefined}></div>
-							))}
-							<span class="cv-year" data-tick={starts ? '1' : undefined} aria-hidden="true">
-								{starts || i === 0 ? Math.floor(month / 12) : ''}
-							</span>
-						</div>
-					);
-				})}
+			<div class="actions">
+				<p class="avail">
+					<span class="pip" aria-hidden="true"></span>
+					<span>disponível para consultoria e freelas de back-end, remoto</span>
+				</p>
+				<a class="cta" href={site.social.email}>
+					me escrever
+					<ArrowUpRight size={18} />
+				</a>
+				<p class="hidden print:block">{printContact.join(' · ')}</p>
+			</div>
+		</section>
+
+		<section class="page-rule py-10 sm:py-12">
+			<SectionHeader title="o que eu pesquiso" />
+			<div class="research">
+				<p>
+					no mestrado estudei autômatos celulares elementares: fileiras de células que mudam de estado
+					olhando só para si e para as duas vizinhas. a pergunta era o que acontece com a dinâmica quando as
+					células deixam de atualizar todas ao mesmo tempo.
+				</p>
+				<p>
+					{/* sem JS não há figura abaixo, e a frase que aponta para ela some junto */}
+					<span class="js-only">abaixo, a mesma regra e o mesmo início, nas duas situações.</span>
+					o <a class="link-inline" href={paper} data-print-url={printUrl(paper)}>artigo</a> saiu pela
+					springer e o <a class="link-inline" href={code} data-print-url={printUrl(code)}>código</a> é aberto.
+				</p>
 			</div>
 
-			<p class="cv-readout mt-3 min-h-5.5 font-mono text-sm text-subtle" id="readout" aria-live="polite"></p>
-		</section>
-
-		<!-- ========================= agora ========================= -->
-		<section class="page-rule py-10 sm:py-12" id="agora">
-			<SectionHeader title="agora" />
-			<ul class="cv-now grid gap-3.5">
-				<li class="flex gap-3">
-					<span class="cv-pip" aria-hidden="true"></span>
-					<p class="text-sm leading-5.5 text-muted sm:text-base">
-						<b class="font-semibold text-text">disponível para consultoria e freelas de back-end, remoto.</b>
-						escopo fechado ou acompanhamento contínuo, de preferência em times pequenos.
-					</p>
-				</li>
-				<li class="flex gap-3" id="agora-produto">
-					<span class="cv-pip" aria-hidden="true"></span>
-					<p class="text-sm leading-5.5 text-muted sm:text-base">
-						desde dezembro de 2025, construindo um produto próprio que ainda não foi a público:
-						nestjs com graphql federado, postgres com drizzle e row-level security, next.js no front.
-					</p>
-				</li>
-				<li class="flex gap-3">
-					<span class="cv-pip" data-idle aria-hidden="true"></span>
-					<p class="text-sm leading-5.5 text-muted sm:text-base">
-						nas horas vagas, o <a class="link-inline" href="https://github.com/c3h/ito">ito</a>, um issue
-						tracker para terminal em binário único e sqlite, pensado para uso por agentes de ia.
-					</p>
-				</li>
-				<li class="flex gap-3" id="agora-doutorado">
-					<span class="cv-pip" aria-hidden="true"></span>
-					<p class="text-sm leading-5.5 text-muted sm:text-base">
-						doutorado iniciado em agosto de 2026 na mackenzie, na sequência do mestrado defendido em março,
-						com <a class="link-inline" href="https://doi.org/10.1007/978-3-032-18612-6_20">artigo publicado pela springer</a>
-						sobre dinâmica de autômatos celulares.
-					</p>
-				</li>
-			</ul>
-		</section>
-
-		<!-- ========================= trajetória ========================= -->
-		<section class="page-rule py-10 sm:py-12" id="trajetoria">
-			<SectionHeader title="trajetória">
-				<div
-					slot="actions"
-					class="cv-js-only ml-auto flex items-center gap-1 font-mono text-sm"
-					role="group"
-					aria-label="nível de detalhe"
-				>
-					<button
-						type="button"
-						class="cv-density-btn border border-transparent px-2 py-1 text-subtle transition hover:text-text aria-pressed:border-line aria-pressed:text-accent"
-						data-density="resumo"
-						aria-pressed="false"
-					>
-						resumo
-					</button>
-					<button
-						type="button"
-						class="cv-density-btn border border-transparent px-2 py-1 text-subtle transition hover:text-text aria-pressed:border-line aria-pressed:text-accent"
-						data-density="completo"
-						aria-pressed="true"
-					>
-						completo
-					</button>
-				</div>
-			</SectionHeader>
-
-			<p class="cv-section-lead -mt-4 text-sm leading-5.5 text-muted sm:text-base">
-				nenhuma competência aqui é adjetivo solto. escolha uma tecnologia e a trajetória
-				mostra onde ela foi exercida — e por quanto tempo.
-			</p>
-
-			<div class="cv-js-only mt-5" id="filter">
-				{/* uma fileira só: os grupos sobrevivem na ordem dos chips, não em títulos */}
-				<div class="flex flex-wrap items-baseline gap-x-2 gap-y-1 font-mono text-sm leading-6" role="group" aria-label="filtrar por tecnologia">
-					<span class="text-subtle">filtrar:</span>
-					{techGroups.flatMap((group) => [...group.items]).map((item, index) => (
-						<>
-							{index > 0 && <span aria-hidden="true" class="text-line">·</span>}
+			{/* o objeto da pesquisa rodando na página: um autômato celular elementar
+			    sob atualização síncrona e sob atualização bloco-sequencial, lado a
+			    lado. */}
+			<div class="ca" id="ca" data-rule={DEFAULT_RULE}>
+				<div class="controls">
+					<div class="group" role="group" aria-label="regra do autômato">
+						<span class="label">regra</span>
+						{RULES.map((rule) => (
 							<button
-								class="cv-chip text-muted transition hover:text-accent aria-pressed:text-accent aria-pressed:underline aria-pressed:underline-offset-4"
-								data-tech={item.id}
-								aria-pressed="false"
+								type="button"
+								class="chip tabular-nums"
+								data-ca-rule={rule}
+								aria-pressed={rule === DEFAULT_RULE ? 'true' : 'false'}
 							>
-								{item.label}
+								{rule}
 							</button>
-						</>
-					))}
+						))}
+					</div>
+					<div class="group" role="group" aria-label="estado inicial">
+						<span class="label">início</span>
+						<button type="button" class="chip" data-ca-start="one" aria-pressed="true">uma célula</button>
+						<button type="button" class="chip" data-ca-start="random" aria-pressed="false">aleatório</button>
+					</div>
 				</div>
-				<p class="mt-2 text-sm leading-5.5 text-subtle empty:hidden" id="filter-status" aria-live="polite"></p>
-			</div>
 
-			<div class="cv-timeline mt-5" id="timeline" data-density="completo">
-				{careerEntries.map((entry) => (
-					<article
-						class="cv-entry relative pb-[1.7rem] pl-5 last:pb-0"
-						id={entry.id}
-						data-tech={entry.tech.join(' ')}
-						data-from={entry.from}
-						data-to={entry.to}
-					>
-						<p class="font-mono text-xs text-subtle sm:text-sm">
-							{formatWhen(entry.from, entry.to)} · {entry.kind}
-						</p>
-						<h3 class="mt-1.5 text-lg font-semibold text-text sm:text-[1.25rem]">
-							{entry.role}
-							<span class="font-normal text-muted">
-								{' · '}
-								{entry.orgHref ? <a class="link-inline" href={entry.orgHref}>{entry.org}</a> : entry.org}
-								{entry.orgNote && ` ${entry.orgNote}`}
-							</span>
-						</h3>
-						<p class="mt-2 text-sm leading-5.5 text-muted sm:text-base">{entry.what}</p>
-						{entry.did && (
-							<ul class="cv-did mt-3 grid gap-1.5 text-sm leading-5.5 text-muted sm:text-base">
-								{entry.did.map((bullet) => (
-									<li>
-										{bullet.href ? (
-											<a class="link-inline" href={bullet.href} data-print-url={printUrl(bullet.href)}>{bullet.text}</a>
-										) : (
-											bullet.text
-										)}
-										{bullet.after}
-									</li>
-								))}
-							</ul>
-						)}
-						<p class="mt-3 font-mono text-xs text-subtle sm:text-sm">{entry.stack}</p>
-					</article>
-				))}
+				<div class="diagrams">
+					<figure>
+						<canvas
+							data-ca-canvas="sync"
+							role="img"
+							aria-label="diagrama espaço-tempo do autômato sob atualização síncrona"
+							aria-describedby="ca-state"></canvas>
+						<figcaption><b>síncrona</b> · todas as células atualizam juntas</figcaption>
+					</figure>
+					<figure>
+						<canvas
+							data-ca-canvas="block"
+							role="img"
+							aria-label="diagrama espaço-tempo do mesmo autômato sob atualização bloco-sequencial"
+							aria-describedby="ca-state"></canvas>
+						<figcaption><b>bloco-sequencial</b> · primeiro as pares, depois as ímpares</figcaption>
+					</figure>
+				</div>
+				<p class="legend">
+					cada linha é um instante; o tempo corre para baixo. a primeira linha é o início, com as
+					células ativas em destaque.
+				</p>
+				{/* o que os diagramas mostram, em palavras: lido por leitor de tela a cada
+				    mudança e impresso no papel, onde os controles não existem */}
+				<p class="state sr-only print:not-sr-only" id="ca-state"></p>
 			</div>
 		</section>
 
-		<!-- ========================= formação ========================= -->
-		<section class="page-rule py-10 sm:py-12" id="formacao">
-			<SectionHeader title="formação" />
-			<div class="page-list">
-				{education.map((item) => (
-					<LinkCard title={item.title} meta={item.meta} description={item.description} headingLevel="h3" />
-				))}
-			</div>
-		</section>
-
-		<!-- ========================= publicações ========================= -->
-		<section class="page-rule py-10 sm:py-12" id="publicacoes">
-			<SectionHeader title="publicações" href="/publications/" linkLabel="todas as publicações" />
-			<div class="page-list">
-				{publications.map((publication) => (
-					<LinkCard
-						title={publication.title}
-						meta={`${publication.authors} · ${publication.venue} · ${publication.country} · ${publication.year}`}
-						href={publication.href}
-						headingLevel="h3"
-					/>
-				))}
-			</div>
-		</section>
-
-		<!-- ========================= projetos ========================= -->
-		<section class="page-rule py-10 sm:py-12" id="projetos">
-			<SectionHeader title="projetos" href="/projects/" linkLabel="todos os projetos" />
-			<div class="page-list">
-				{projects.map((project) => (
-					<LinkCard
-						title={project.title}
-						meta={`${project.role} · ${project.period}`}
-						description={project.description}
-						href={project.href}
-						headingLevel="h3"
-						pills={project.stack}
-					/>
-				))}
-			</div>
-		</section>
-
-		<!-- ========================= fechamento ========================= -->
-		<section class="page-rule cv-closing pt-10 sm:pt-12">
-			<p class="max-w-[46ch] text-lg text-text sm:text-[1.25rem]">
-				se você chegou até aqui, provavelmente tem um sistema para construir. me conte qual é.
-			</p>
-			<a
-				href={site.social.email}
-				class="group mt-5 inline-flex items-center gap-1 text-sm text-accent transition hover:text-text sm:text-base"
-			>
-				me mandar um email
-				<ArrowUpRight size={18} class="transition group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
-			</a>
+		<section class="page-rule foot pt-10 sm:pt-12">
+			<p class="where">engenheiro coelho, sp · pt-br nativo · en profissional</p>
+			<nav aria-label="contato">
+				<ul class="links">
+					<li><a href={pdf} download>currículo em pdf</a></li>
+					{socialLinks.map((item) => (
+						<li><a href={item.href}>{item.label}</a></li>
+					))}
+				</ul>
+			</nav>
 		</section>
 	</div>
-
-	{/* o modelo da régua é calculado no build; o cliente só liga a interação */}
-	<script
-		type="application/json"
-		id="rail-data"
-		is:inline
-		set:html={JSON.stringify({ total: rail.total, origin: rail.origin, model: rail.model }).replace(/</g, '\\u003c')}
-	></script>
 </BaseLayout>
 
-<style is:global>
+<style>
 	/* ============================================================
-	   /about — currículo vivo.
-	   O layout, a escala tipográfica e os cards vêm das utilities e dos
-	   componentes do site. Aqui fica só o que não existe em nenhuma outra
-	   página: a régua de meses, o fio da trajetória e o modo impressão.
-	   A família --cell* pinta a régua; tudo escopado sob .cv.
+	   /about — uma página curta sobre o presente. O layout e os títulos
+	   vêm do site; aqui fica só o que é desta página: a escala de leitura
+	   e o autômato.
 	   ============================================================ */
-	.cv {
-		--cell: #5c5e64;
-		--cell-soft: #35363b;
-		--cell-empty: #1a1a1c;
+	.about {
+		/* o --subtle do site não fecha 4.5:1 em texto pequeno, nem o laranja
+		   em fundo claro: metadado e link ganham degraus próprios aqui */
+		--meta: #8f96a5;
+		--link: var(--accent);
+		--ca-on: #8b8e96;
+		--ca-off: #1b1b1d;
+		--ca-seed: var(--accent);
+		font-size: 0.9375rem;
+		line-height: 1.6;
+		color: var(--muted);
 	}
-	:root[data-theme='light'] .cv {
-		--cell: #77857b;
-		--cell-soft: #b0bab3;
-		--cell-empty: #e6ebe7;
-	}
-
-	/* sem JS os controles não fazem nada, então não existem */
-	:root:not([data-js]) .cv .cv-js-only {
-		display: none !important;
-	}
-	.cv .cv-print-only {
-		display: none;
-	}
-
-	/* ============================================================
-	   régua — o elemento de assinatura. um mês por célula, em duas
-	   trilhas. é um diagrama espaço-tempo, e também o índice da página:
-	   filtro, hover e clique passam por ela.
-	   ============================================================ */
-	.cv .cv-swatch {
-		width: 0.6rem;
-		height: 0.6rem;
-		display: inline-block;
-		background: var(--cell);
-	}
-	.cv .cv-swatch-res {
-		background: var(--cell-soft);
+	:global(:root[data-theme='light']) .about {
+		--meta: #5d6975;
+		--link: #b3410e;
+		--ca-on: #5f6d63;
+		--ca-off: #e6ebe7;
+		/* o laranja do site não chega a 3:1 contra a célula apagada no claro */
+		--ca-seed: var(--link);
 	}
 
-	.cv .cv-rail {
-		--cell-size: 0.75rem;
+	/* o link de texto é o do site, que lê o --link definido acima */
+	.link-inline {
+		transition: text-decoration-color 160ms ease;
+	}
+
+	.now {
+		margin-top: 2rem;
+		max-width: 60ch;
 		display: grid;
-		grid-template-columns: repeat(auto-fill, var(--cell-size));
-		gap: 0.875rem 1px;
-	}
-	.cv .cv-month {
-		display: grid;
-		grid-template-rows: var(--cell-size) var(--cell-size) auto;
-		gap: 3px;
-	}
-	.cv .cv-cell {
-		width: var(--cell-size);
-		height: var(--cell-size);
-		background: var(--cell-empty);
-		transition: background 160ms ease;
-	}
-	.cv .cv-cell[data-on='1'] {
-		background: var(--cell);
-	}
-	/* a trilha de pesquisa é a mesma malha em meio-tom: outra natureza, não
-	   menos importante. */
-	.cv .cv-cell[data-track='res'][data-on='1'] {
-		background: var(--cell-soft);
-	}
-	/* estado ativo: hover na régua, hover numa entrada, ou filtro por tecnologia */
-	.cv .cv-cell[data-hot='1'] {
-		background: var(--accent);
-	}
-	.cv .cv-cell[data-track='res'][data-hot='1'] {
-		background: color-mix(in srgb, var(--accent) 55%, var(--cell-empty));
-	}
-	/* o rótulo do ano mora na coluna de janeiro e transborda para a direita
-	   sobre as colunas vizinhas, que não têm texto */
-	.cv .cv-year {
-		margin-top: 0.125rem;
-		height: 0.875rem;
-		color: var(--subtle);
-		font-family: var(--font-mono);
-		font-size: 0.625rem;
-		letter-spacing: 0.04em;
-		line-height: 0.875rem;
-		white-space: nowrap;
-	}
-	.cv .cv-year[data-tick='1'] {
-		border-left: 1px solid var(--line);
-		padding-left: 0.25rem;
-	}
-	.cv .cv-readout b {
+		gap: 0.9rem;
+		font-size: 1rem;
+		line-height: 1.65;
 		color: var(--text);
-		font-weight: 600;
-	}
-	.cv .cv-readout .mo {
-		color: var(--accent);
 	}
 
-	/* ---------- agora ---------- */
-	.cv .cv-pip {
-		margin-top: 0.42rem;
-		width: 0.45rem;
-		height: 0.45rem;
+	.actions {
+		margin-top: 2rem;
+		display: grid;
+		gap: 0.5rem;
+		justify-items: start;
+	}
+	.avail {
+		display: flex;
+		gap: 0.7rem;
+		align-items: flex-start;
+	}
+	.pip {
 		flex-shrink: 0;
-		background: var(--accent);
-	}
-	.cv .cv-pip[data-idle] {
-		background: transparent;
-		box-shadow: inset 0 0 0 1px var(--subtle);
-	}
-
-	/* ---------- filtro ---------- */
-	.cv .cv-clear {
-		color: inherit;
-		text-decoration: underline;
-		text-underline-offset: 0.22em;
-		cursor: pointer;
-	}
-	.cv .cv-clear:hover {
-		color: var(--accent);
-	}
-	#filter-status b {
-		color: var(--text);
-		font-weight: 600;
-	}
-
-	/* ---------- trajetória ---------- */
-	/* fio vertical, interrompido no último item */
-	.cv .cv-entry::after {
-		content: '';
-		position: absolute;
-		left: 0.215rem;
-		top: 0.95rem;
-		bottom: 0;
-		width: 1px;
-		background: var(--line);
-	}
-	.cv .cv-entry:last-child::after {
-		display: none;
-	}
-	/* o marcador se alinha ao centro da linha da data, que cresce em sm */
-	.cv .cv-entry::before {
-		content: '';
-		position: absolute;
-		left: 0;
-		top: 0.1875rem;
+		margin-top: 0.55em;
 		width: 0.5rem;
 		height: 0.5rem;
-		background: var(--bg);
-		box-shadow: inset 0 0 0 1px var(--subtle);
-		transition: background 160ms ease, box-shadow 160ms ease;
-		z-index: 1;
+		background: var(--accent);
 	}
-	@media (width >= 40rem) {
-		.cv .cv-entry::before {
-			top: 0.3125rem;
+	.cta {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.25rem;
+		min-height: 2.25rem;
+		color: var(--link);
+		font-weight: 600;
+		transition: color 160ms ease;
+	}
+	.cta :global(svg) {
+		transition: transform 160ms cubic-bezier(0.23, 1, 0.32, 1);
+	}
+	.cta:active {
+		transform: scale(0.97);
+	}
+
+	.research {
+		margin-top: -1rem;
+		max-width: 62ch;
+		display: grid;
+		gap: 0.75rem;
+	}
+
+	/* ---------- o autômato ---------- */
+	.ca {
+		margin-top: 2rem;
+	}
+	.controls {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.6rem 2rem;
+		font-size: 0.8125rem;
+	}
+	.group {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: 0.25rem;
+	}
+	.label {
+		margin-right: 0.4rem;
+		color: var(--meta);
+	}
+	.chip {
+		min-height: 2rem;
+		padding: 0 0.6rem;
+		border: 1px solid transparent;
+		color: var(--muted);
+		cursor: pointer;
+		transition:
+			color 160ms ease,
+			border-color 160ms ease,
+			transform 120ms cubic-bezier(0.23, 1, 0.32, 1);
+	}
+	/* a borda carrega o estado, não só o matiz do texto */
+	.chip[aria-pressed='true'] {
+		border-color: var(--link);
+		color: var(--link);
+	}
+	.chip:active {
+		transform: scale(0.97);
+	}
+
+	.diagrams {
+		margin-top: 1.25rem;
+		display: grid;
+		grid-template-columns: minmax(0, 1fr);
+		gap: 1.75rem;
+	}
+	@media (width >= 44rem) {
+		.diagrams {
+			grid-template-columns: repeat(2, minmax(0, 1fr));
+			gap: 2rem;
 		}
 	}
-	/* alvo de âncora (links internos para uma posição) */
-	.cv .cv-entry:target::before {
-		background: var(--accent);
-		box-shadow: inset 0 0 0 1px var(--accent);
+	figure {
+		min-width: 0;
 	}
-	.cv .cv-entry:target h3 {
-		color: var(--accent);
+	/* a altura é reservada antes do primeiro desenho: 36 linhas de 7px, menos o
+	   respiro final. o script confirma o mesmo valor ao desenhar */
+	canvas {
+		display: block;
+		max-width: 100%;
+		height: 251px;
 	}
-
-	.cv .cv-did li {
-		padding-left: 0.95rem;
-		position: relative;
-	}
-	.cv .cv-did li::before {
-		content: '';
-		position: absolute;
-		left: 0;
-		top: 0.62em;
-		width: 0.3rem;
-		height: 1px;
-		background: var(--subtle);
-	}
-
-	/* modo resumo: o essencial de cada posição, em uma tela */
-	.cv .cv-timeline[data-density='resumo'] .cv-did {
+	/* sem JS não há o que desenhar: controles não fazem nada, e a legenda sozinha
+	   descreveria uma figura ausente */
+	:global(:root:not([data-js])) .controls,
+	:global(:root:not([data-js])) .diagrams,
+	:global(:root:not([data-js])) .legend,
+	:global(:root:not([data-js])) .js-only {
 		display: none;
 	}
+	figcaption,
+	.legend,
+	.where {
+		color: var(--meta);
+		font-size: 0.8125rem;
+		line-height: 1.5;
+	}
+	figcaption {
+		margin-top: 0.6rem;
+	}
+	figcaption b {
+		color: var(--text);
+		font-weight: 600;
+	}
+	.legend {
+		margin-top: 1rem;
+		max-width: 62ch;
+	}
 
-	/* filtro ativo: contexto preservado, foco deslocado */
-	.cv .cv-timeline .cv-entry {
-		transition: opacity 200ms ease;
+	.foot {
+		display: grid;
+		gap: 0.75rem;
 	}
-	.cv .cv-timeline[data-filtering] .cv-entry {
-		opacity: 0.32;
+	.links {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.25rem 1.25rem;
 	}
-	.cv .cv-timeline[data-filtering] .cv-entry[data-hit] {
-		opacity: 1;
-	}
-	.cv .cv-timeline[data-filtering] .cv-entry[data-hit]::before {
-		background: var(--accent);
-		box-shadow: inset 0 0 0 1px var(--accent);
+	.links a {
+		display: inline-block;
+		padding-block: 0.3rem;
+		color: var(--muted);
+		text-decoration: underline;
+		text-decoration-color: var(--line);
+		transition:
+			color 160ms ease,
+			text-decoration-color 160ms ease;
 	}
 
-	/* ============================================================
-	   impressão — ctrl+p na página precisa produzir um currículo de verdade,
-	   não uma captura da tela escura. (o arquivo em public/daniel-gimigliano-cv.pdf,
-	   servido pelo botão "baixar pdf", é mantido à parte e copiado para lá à mão;
-	   não sai desta impressão.) O reset de tema e o corte
-	   do cromo do site são do site inteiro e moram em global.css; aqui
-	   fica só a calibragem do currículo.
-	   ============================================================ */
+	@media (hover: hover) and (pointer: fine) {
+		.cta:hover {
+			color: var(--text);
+		}
+		.cta:hover :global(svg) {
+			transform: translate(2px, -2px);
+		}
+		.chip:hover {
+			color: var(--text);
+		}
+		.links a:hover {
+			color: var(--link);
+			text-decoration-color: currentColor;
+		}
+	}
+
+	/* no papel o contato são endereços por extenso, e os controles não existem */
 	@media print {
-		.cv,
-		:root[data-theme='light'] .cv {
-			--cell: #888;
-			--cell-soft: #c4c4c4;
-			--cell-empty: #eee;
+		/* o papel é o mesmo, qualquer que seja o tema da tela */
+		.about,
+		:global(:root[data-theme='light']) .about {
+			--meta: #666;
+			--link: #111;
 		}
-		/* a escala de tela é redefinida no papel, não herdada */
-		.cv {
-			font-size: 9pt;
-			line-height: 1.35;
-		}
-		.cv p,
-		.cv li,
-		.cv h3 {
-			font-size: inherit !important;
-			line-height: inherit !important;
-		}
-		/* o fechamento é um convite de tela: no papel o contato já está no topo */
-		.cv .cv-js-only,
-		.cv .cv-readout,
-		.cv .cv-closing,
-		.cv .cv-section-lead,
-		.cv .cv-legend,
-		.cv .cv-contact a,
-		.cv .cv-contact button,
-		.cv .cv-contact .cv-sep {
-			display: none !important;
-		}
-		/* em papel o contato não são rótulos clicáveis: são endereços por extenso */
-		.cv .cv-print-only {
-			display: inline;
-		}
-		.cv .cv-hero {
-			padding-bottom: 0 !important;
-		}
-		.cv .cv-hero h1 {
-			font-size: 19pt !important;
-		}
-		.cv .cv-hero .page-description {
-			margin-top: 0.35rem !important;
-			font-size: 10pt !important;
-			line-height: 1.4 !important;
-			max-width: none;
-		}
-		.cv .cv-role-meta {
-			margin: 0 0 0.35rem !important;
-		}
-		.cv .cv-contact {
-			margin-top: 0.7rem !important;
-			gap: 0.25rem 0.7rem;
-		}
-		.cv section {
-			margin-top: 0 !important;
-			padding-top: 0.8rem !important;
-			padding-bottom: 0.9rem !important;
-		}
-		.cv .section-title {
-			font-size: 11.5pt;
-			margin-bottom: 0.5rem !important;
-		}
-		.cv .section-title + * {
-			margin-bottom: 0.5rem !important;
-		}
-		.cv .cv-rail-block {
-			padding-top: 0.7rem !important;
-		}
-		.cv .cv-rail {
-			--cell-size: 6pt;
-			gap: 8pt 1px;
-		}
-		.cv .cv-now {
-			gap: 0.35rem;
-		}
-		.cv .cv-timeline {
-			margin-top: 0.5rem !important;
-		}
-		/* uma entrada pode partir entre páginas, mas nunca separada do próprio título */
-		.cv .cv-entry {
-			padding-bottom: 0.7rem !important;
-		}
-		.cv .cv-entry::after {
+		.cta,
+		.controls,
+		.foot {
 			display: none;
 		}
-		.cv .cv-entry > p:first-child,
-		.cv .cv-entry h3 {
-			break-after: avoid;
+		.ca {
+			break-inside: avoid;
 		}
-		.cv .cv-entry > * {
-			margin-top: 0.3rem !important;
+		/* a4 fica 1px abaixo do ponto de quebra: lado a lado é a comparação */
+		.diagrams {
+			grid-template-columns: repeat(2, minmax(0, 1fr));
+			gap: 1.5rem;
 		}
-		.cv .cv-did {
-			gap: 0.1rem !important;
+		/* a coluna do papel é mais estreita que a da tela: a altura segue a
+		   proporção do canvas em vez da medida fixada pelo script */
+		canvas {
+			height: auto !important;
 		}
-		/* o papel ignora resumo e filtro: um currículo impresso pela metade não
-		   serve a ninguém, e desfazer os controles no clique tiraria da tela o
-		   estado que o leitor tinha montado */
-		.cv .cv-timeline[data-density='resumo'] .cv-did {
-			display: grid !important;
-		}
-		.cv .cv-timeline[data-filtering] .cv-entry {
-			opacity: 1;
-		}
-		.cv .cv-timeline[data-filtering] .cv-entry[data-hit]::before {
-			background: var(--bg);
-			box-shadow: inset 0 0 0 1px var(--subtle);
-		}
-		.cv .page-list {
-			margin-top: 0.5rem !important;
-			gap: 0 !important;
-		}
-		.cv .link-card p {
-			margin-top: 0.15rem !important;
+		/* na tela é só para leitor de tela (sr-only); no papel vira legenda */
+		.state {
+			margin-top: 0.5rem;
+			color: var(--meta);
+			font-size: 0.8125rem;
 		}
 	}
 </style>
 
 <script>
-	type RailItem = {
-		target: string;
-		from: number;
-		to: number;
-		track: 'eng' | 'res';
-		tech: string[];
-		title: string;
+	/**
+	 * Autômato celular elementar em anel. A regra é o número de Wolfram; o
+	 * modo decide a ordem de atualização:
+	 *  - sync:  todas as células leem o instante anterior;
+	 *  - block: as pares atualizam primeiro, e as ímpares já leem o resultado.
+	 */
+	type Mode = 'sync' | 'block';
+	type Palette = { on: string; off: string; seed: string };
+
+	const PITCH = 7; // célula de 6px + 1px de respiro
+	const CELL = 6;
+	const ROWS = 36; // o CSS reserva a altura correspondente
+	const REVEAL_MS = 700;
+	/** o papel é branco, qualquer que seja o tema da tela */
+	const PAPER: Palette = { on: '#888', off: '#eee', seed: '#111' };
+
+	const step = (cells: Uint8Array, rule: number, mode: Mode) => {
+		const n = cells.length;
+		const cur = cells.slice();
+		const f = (i: number) => (rule >> ((cur[(i - 1 + n) % n] << 2) | (cur[i] << 1) | cur[(i + 1) % n])) & 1;
+		// cada passada lê tudo antes de escrever: dentro de um bloco a atualização é simultânea
+		const pass = (start: number, stride: number) => {
+			const out: number[] = [];
+			for (let i = start; i < n; i += stride) out.push(f(i));
+			for (let i = start, k = 0; i < n; i += stride, k++) cur[i] = out[k];
+		};
+		if (mode === 'sync') pass(0, 1);
+		else {
+			pass(0, 2);
+			pass(1, 2);
+		}
+		return cur;
 	};
 
-	const dataNode = document.getElementById('rail-data');
-	const rail = document.getElementById('rail');
-	const readout = document.getElementById('readout');
-	const status = document.getElementById('filter-status');
-	const timeline = document.getElementById('timeline');
+	const root = document.getElementById('ca');
+	const state = document.getElementById('ca-state');
+	const canvases = Array.from(root?.querySelectorAll<HTMLCanvasElement>('[data-ca-canvas]') ?? []);
+	const slotOf = canvases[0]?.parentElement;
 
-	if (dataNode && rail && readout && status && timeline) {
-		const MONTH_ABBR = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'];
-		const { total, origin, model } = JSON.parse(dataNode.textContent ?? '{}') as {
-			total: number;
-			origin: number;
-			model: RailItem[];
+	if (root && state && slotOf) {
+		const reduced = window.matchMedia('(prefers-reduced-motion: reduce)');
+		let rule = Number(root.dataset.rule);
+		let start: 'one' | 'random' = 'one';
+		let seed: Uint8Array | null = null;
+		let drawnCols = 0;
+		let frame = 0;
+		let printing = false;
+		/** a revelação é o momento da página: espera o diagrama entrar na tela */
+		let seen = false;
+
+		const palette = (): Palette => {
+			if (printing) return PAPER;
+			const styles = getComputedStyle(root);
+			return {
+				on: styles.getPropertyValue('--ca-on').trim(),
+				off: styles.getPropertyValue('--ca-off').trim(),
+				seed: styles.getPropertyValue('--ca-seed').trim(),
+			};
 		};
 
-		const labelOf = (i: number) => {
-			const abs = origin + i;
-			return `${MONTH_ABBR[abs % 12]}/${Math.floor(abs / 12)}`;
+		const count = (cells: Uint8Array) => cells.reduce((sum, cell) => sum + cell, 0);
+
+		/** número par de colunas: os dois blocos (pares, ímpares) fecham o anel. 0 quando não cabe */
+		const gridCols = () => {
+			const slot = slotOf.clientWidth;
+			if (slot < PITCH * 8) return 0;
+			const cols = Math.floor((slot + 1) / PITCH);
+			return cols - (cols % 2);
 		};
 
-		// quem ocupa cada mês — a base do readout e da pintura das células
-		const occupancy: RailItem[][] = Array.from({ length: total }, () => []);
-		for (const item of model) {
-			for (let i = item.from; i <= item.to; i++) occupancy[i].push(item);
-		}
+		const draw = (animate: boolean) => {
+			cancelAnimationFrame(frame);
+			const cols = gridCols();
+			if (!cols) return;
 
-		// o alvo de cada período e as células de cada trilha são fixos desde o
-		// build: resolvidos uma vez, nunca reconsultados no meio de uma interação
-		const nodes = new Map(model.map((item) => [item, document.querySelector<HTMLElement>(item.target)]));
-		const nodeOf = (item: RailItem) => nodes.get(item) ?? null;
-		const tracks = (['eng', 'res'] as const).map((name) => ({
-			name,
-			cells: Array.from(rail.querySelectorAll<HTMLElement>(`.cv-cell[data-track='${name}']`)),
-		}));
-		const chips = Array.from(document.querySelectorAll<HTMLButtonElement>('.cv-chip'));
-		const densityBtns = Array.from(document.querySelectorAll<HTMLButtonElement>('.cv-density-btn'));
-
-		// quais tecnologias levam a quais períodos — o filtro não refaz a varredura a cada clique
-		const byTech = new Map<string, RailItem[]>();
-		for (const item of model) {
-			for (const tech of item.tech) {
-				const hits = byTech.get(tech);
-				if (hits) hits.push(item);
-				else byTech.set(tech, [item]);
+			if (!seed || seed.length !== cols) {
+				seed = new Uint8Array(cols);
+				if (start === 'random') for (let i = 0; i < cols; i++) seed[i] = Math.random() < 0.5 ? 1 : 0;
+				// sempre numa célula par: no bloco-sequencial a paridade da semente muda o
+				// desenho, e a paridade não pode depender da largura da tela
+				else seed[(cols >> 1) & ~1] = 1;
 			}
-		}
-		const matching = (tech: string) => byTech.get(tech) ?? [];
+			const origin = seed;
+			const colors = palette();
 
-		const IDLE = 'percorra a régua para ver mês a mês. clique para ir ao período.';
-		// o readout tem um estado de repouso — livre, ou o do filtro — para onde
-		// sempre volta quando o ponteiro sai da régua ou de uma entrada
-		let baseReadout = IDLE;
-		let activeTech: string | null = null;
+			// em pixels do dispositivo, arredondados: com zoom ou escala fracionária a
+			// malha continua nítida e os vãos, regulares
+			const dpr = window.devicePixelRatio || 1;
+			const px = (value: number) => Math.round(value * dpr);
+			const w = cols * PITCH - 1;
+			const h = ROWS * PITCH - 1;
 
-		const rest = () => {
-			readout.innerHTML = baseReadout;
-		};
+			const jobs = canvases.map((canvas) => {
+				const mode: Mode = canvas.dataset.caCanvas === 'block' ? 'block' : 'sync';
+				const history = [origin];
+				for (let r = 1; r < ROWS; r++) history.push(step(history[r - 1], rule, mode));
 
-		type Hot = { eng: Set<number>; res: Set<number> };
+				canvas.width = px(w);
+				canvas.height = px(h);
+				canvas.style.width = `${w}px`;
+				canvas.style.height = `${h}px`;
+				return { mode, ctx: canvas.getContext('2d'), history };
+			});
 
-		/* só as células acesas são tocadas: um cursor mexe em duas de duzentas e
-		   quarenta, e varrer a régua inteira a cada evento de ponteiro custaria
-		   mais que a interação inteira vale */
-		let lit: HTMLElement[] = [];
-		const hotSet = (hot: Hot | null) => {
-			for (const cell of lit) delete cell.dataset.hot;
-			lit = [];
-			if (!hot) return;
-			for (const track of tracks) {
-				for (const i of hot[track.name]) {
-					const cell = track.cells[i];
-					if (!cell) continue;
-					cell.dataset.hot = '1';
-					lit.push(cell);
+			const cell = (ctx: CanvasRenderingContext2D, r: number, c: number) => {
+				const x = px(c * PITCH);
+				const y = px(r * PITCH);
+				ctx.fillRect(x, y, px(c * PITCH + CELL) - x, px(r * PITCH + CELL) - y);
+			};
+			// a malha apagada vem inteira e de uma vez; só as células ativas se revelam
+			for (const { ctx } of jobs) {
+				if (!ctx) continue;
+				ctx.fillStyle = colors.off;
+				for (let r = 0; r < ROWS; r++) for (let c = 0; c < cols; c++) cell(ctx, r, c);
+			}
+			const paint = (from: number, upTo: number) => {
+				for (const { ctx, history } of jobs) {
+					if (!ctx) continue;
+					for (let r = from; r < upTo; r++) {
+						ctx.fillStyle = r === 0 ? colors.seed : colors.on;
+						for (let c = 0; c < cols; c++) if (history[r][c]) cell(ctx, r, c);
+					}
 				}
+			};
+
+			// o mesmo conteúdo dos diagramas, em palavras
+			const historyOf = (mode: Mode) => jobs.find((job) => job.mode === mode)?.history;
+			const sync = historyOf('sync');
+			const block = historyOf('block');
+			if (sync && block) {
+				let differ = 0;
+				for (let r = 1; r < ROWS; r++) for (let c = 0; c < cols; c++) if (sync[r][c] !== block[r][c]) differ++;
+				const share = Math.round((differ / (ROWS * cols)) * 100);
+				const next =
+					`regra ${rule}, início ${start === 'one' ? 'com uma célula ativa' : 'aleatório'}, ` +
+					`anel de ${cols} células, ${ROWS} instantes. no último instante há ` +
+					`${count(sync[ROWS - 1])} células ativas na atualização síncrona e ` +
+					`${count(block[ROWS - 1])} na bloco-sequencial. os dois diagramas diferem em ${share}% das células.`;
+				if (state.textContent !== next) state.textContent = next;
 			}
-		};
 
-		/* acender é uma afirmação: um período só acende na trilha em que
-		   aconteceu. a única exceção é o cursor da régua, que é um mês e não
-		   um trabalho, e por isso atravessa as duas. */
-		const hotOf = (items: RailItem[]): Hot => {
-			const hot: Hot = { eng: new Set(), res: new Set() };
-			for (const item of items) {
-				for (let i = item.from; i <= item.to; i++) hot[item.track].add(i);
-			}
-			return hot;
-		};
-
-		const cursorAt = (i: number): Hot => ({ eng: new Set([i]), res: new Set([i]) });
-
-		// o filtro é o estado de base; hover é um estado passageiro por cima dele
-		const paintBase = () => hotSet(activeTech ? hotOf(matching(activeTech)) : null);
-
-		rest();
-
-		// o ponteiro atravessa cada célula em vários eventos; só o primeiro é trabalho
-		let hovered = -1;
-
-		rail.addEventListener('mousemove', (event) => {
-			const cell = (event.target as HTMLElement).closest<HTMLElement>('.cv-cell');
-			if (!cell) return;
-			const i = Number(cell.dataset.i);
-			if (i === hovered) return;
-			hovered = i;
-			const here = occupancy[i];
-			readout.innerHTML =
-				`<span class="mo">${labelOf(i)}</span> · ` +
-				(here.length ? [...new Set(here.map((item) => `<b>${item.title}</b>`))].join(' + ') : 'sem registro');
-			hotSet(cursorAt(i));
-		});
-
-		rail.addEventListener('mouseleave', () => {
-			hovered = -1;
-			rest();
-			paintBase();
-		});
-
-		rail.addEventListener('click', (event) => {
-			const cell = (event.target as HTMLElement).closest<HTMLElement>('.cv-cell');
-			if (!cell) return;
-			const here = occupancy[Number(cell.dataset.i)];
-			if (here.length) nodeOf(here[0])?.scrollIntoView({ block: 'center', behavior: 'smooth' });
-		});
-
-		// hover numa entrada acende o próprio período na régua
-		for (const item of model) {
-			const node = nodeOf(item);
-			if (!node) continue;
-			node.addEventListener('mouseenter', () => {
-				if (activeTech) return;
-				hotSet(hotOf([item]));
-				readout.innerHTML =
-					`<span class="mo">${labelOf(item.from)} → ${labelOf(item.to)}</span> · <b>${item.title}</b>`;
-			});
-			node.addEventListener('mouseleave', () => {
-				if (activeTech) return;
-				hotSet(null);
-				rest();
-			});
-		}
-
-		/* ---------- filtro por tecnologia ---------- */
-		const clearFilter = () => {
-			activeTech = null;
-			timeline.removeAttribute('data-filtering');
-			for (const chip of chips) chip.setAttribute('aria-pressed', 'false');
-			for (const item of model) nodeOf(item)?.removeAttribute('data-hit');
-			status.textContent = '';
-			baseReadout = IDLE;
-			rest();
-			hotSet(null);
-		};
-
-		// duração exata: um número redondo demais convida à pergunta errada na entrevista
-		const duration = (months: number) => {
-			if (months < 12) return `${months} ${months === 1 ? 'mês' : 'meses'}`;
-			const years = Math.floor(months / 12);
-			const rem = months % 12;
-			const head = `${years} ${years === 1 ? 'ano' : 'anos'}`;
-			return rem ? `${head} e ${rem} ${rem === 1 ? 'mês' : 'meses'}` : head;
-		};
-
-		const applyFilter = (chip: HTMLButtonElement) => {
-			const tech = chip.dataset.tech;
-			if (!tech) return;
-			if (activeTech === tech) {
-				clearFilter();
+			// no papel e com movimento reduzido não há revelação: o diagrama vem inteiro
+			const instant = printing || reduced.matches;
+			// fora da tela ainda: só o início, à espera de quem vai ver o resto
+			if (!seen && !instant) {
+				paint(0, 1);
 				return;
 			}
-			activeTech = tech;
-			for (const other of chips) other.setAttribute('aria-pressed', String(other.dataset.tech === tech));
-
-			const hits = matching(tech);
-			const hit = new Set(hits);
-			for (const item of model) {
-				const node = nodeOf(item);
-				if (!node) continue;
-				if (hit.has(item)) node.setAttribute('data-hit', '');
-				else node.removeAttribute('data-hit');
+			if (!animate || instant) {
+				paint(0, ROWS);
+				return;
 			}
-			timeline.setAttribute('data-filtering', '');
-
-			const hot = hotOf(hits);
-			hotSet(hot);
-			// a duração é a união das duas trilhas: um mês vivido duas vezes conta uma
-			const months = [...new Set([...hot.eng, ...hot.res])];
-
-			status.innerHTML =
-				`<b>${chip.textContent}</b> · ${hits.length} ${hits.length === 1 ? 'posição' : 'posições'} · ` +
-				`${duration(months.length)} de uso — destacados na régua e na trajetória. ` +
-				'<button type="button" class="cv-clear" data-clear-filter>limpar</button>';
-			status.querySelector('[data-clear-filter]')?.addEventListener('click', clearFilter);
-
-			baseReadout =
-				`régua filtrada por <b>${chip.textContent}</b> · ` +
-				`<span class="mo">${labelOf(Math.min(...months))} → ${labelOf(Math.max(...months))}</span>`;
-			rest();
-
-			// só rola se a trajetória não estiver visível — evita puxar o tapete do leitor
-			if (timeline.getBoundingClientRect().top > window.innerHeight * 0.9) {
-				timeline.scrollIntoView({ block: 'start', behavior: 'smooth' });
-			}
+			// o diagrama se desenha de cima para baixo, na ordem em que o tempo passa
+			const began = performance.now();
+			let done = 0;
+			const tick = (now: number) => {
+				const t = Math.min(1, (now - began) / REVEAL_MS);
+				const target = Math.max(1, Math.round((1 - Math.pow(1 - t, 3)) * ROWS));
+				paint(done, target);
+				done = target;
+				if (t < 1) frame = requestAnimationFrame(tick);
+			};
+			frame = requestAnimationFrame(tick);
 		};
 
-		for (const chip of chips) chip.addEventListener('click', () => applyFilter(chip));
+		const press = (selector: string, active: Element) => {
+			for (const chip of root.querySelectorAll(selector)) chip.setAttribute('aria-pressed', String(chip === active));
+		};
+		const interact = () => {
+			seen = true;
+			draw(true);
+		};
+		// quem chega aos controles quer ouvir o resultado. a região fica viva antes
+		// do clique: mudança feita no mesmo instante em que ela nasce não é anunciada
+		const controls = root.querySelector('.controls');
+		const listen = () => state.setAttribute('aria-live', 'polite');
+		controls?.addEventListener('focusin', listen, { once: true });
+		controls?.addEventListener('pointerdown', listen, { once: true });
 
-		/* ---------- densidade ---------- */
-		for (const btn of densityBtns) {
-			btn.addEventListener('click', () => {
-				timeline.dataset.density = btn.dataset.density;
-				for (const other of densityBtns) other.setAttribute('aria-pressed', String(other === btn));
+		for (const chip of root.querySelectorAll<HTMLButtonElement>('[data-ca-rule]')) {
+			chip.addEventListener('click', () => {
+				rule = Number(chip.dataset.caRule);
+				press('[data-ca-rule]', chip);
+				interact();
 			});
 		}
+		for (const chip of root.querySelectorAll<HTMLButtonElement>('[data-ca-start]')) {
+			chip.addEventListener('click', () => {
+				start = chip.dataset.caStart === 'random' ? 'random' : 'one';
+				seed = null; // "aleatório" de novo sorteia outro início
+				press('[data-ca-start]', chip);
+				interact();
+			});
+		}
+
+		// a largura que conta é a de cada figura: é ela que muda quando os
+		// diagramas passam de uma coluna para duas. só redesenha quando a malha
+		// muda — a largura varia a cada pixel, o número de colunas não
+		new ResizeObserver(() => {
+			const cols = gridCols();
+			if (cols === drawnCols) return;
+			drawnCols = cols;
+			draw(false);
+		}).observe(slotOf);
+
+		new IntersectionObserver(
+			(entries, observer) => {
+				if (!entries.some((entry) => entry.isIntersecting)) return;
+				observer.disconnect();
+				if (seen) return;
+				seen = true;
+				draw(true);
+			},
+			{ threshold: 0.35 },
+		).observe(slotOf);
+
+		// o canvas não acompanha sozinho o que muda fora dele: tema, papel e densidade de tela
+		new MutationObserver(() => draw(false)).observe(document.documentElement, {
+			attributes: true,
+			attributeFilter: ['data-theme'],
+		});
+		window.addEventListener('beforeprint', () => {
+			printing = true;
+			draw(false);
+		});
+		window.addEventListener('afterprint', () => {
+			printing = false;
+			draw(false);
+		});
+		const watchDensity = () => {
+			window.matchMedia(`(resolution: ${window.devicePixelRatio || 1}dppx)`).addEventListener(
+				'change',
+				() => {
+					draw(false);
+					watchDensity();
+				},
+				{ once: true },
+			);
+		};
+		watchDensity();
 	}
 </script>

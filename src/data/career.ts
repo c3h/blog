@@ -1,12 +1,13 @@
 /**
- * A trajetória é a fonte da régua, do filtro por tecnologia e do PDF.
- * Toda data usa o formato 'YYYY-MM'; 'agora' é resolvido no build para o
- * mês corrente, para que a régua não envelheça sozinha entre dois deploys.
+ * A trajetória e a formação são o registro dos fatos: daqui saem os endereços
+ * das empresas em /about e o conteúdo do currículo em PDF, que é montado à mão.
+ * `education` não é lido por nenhuma página hoje; fica como fonte do PDF.
+ * Toda data usa o formato 'YYYY-MM'; 'agora' marca o que ainda está em curso.
  */
 
 export type CareerKind = 'engenharia' | 'pesquisa' | 'ensino' | 'dados';
 
-/** Um item de "o que eu fiz". `href` vira link na tela e citação no papel. */
+/** Um item de "o que eu fiz". `href` aponta para a publicação, quando há uma. */
 export type CareerBullet = {
 	text: string;
 	href?: string;
@@ -21,17 +22,12 @@ export type CareerEntry = {
 	role: string;
 	org: string;
 	orgHref?: string;
-	/** contexto que não cabe dentro do link da empresa — clientes, por exemplo */
+	/** contexto além do nome da empresa — clientes, por exemplo */
 	orgNote?: string;
-	/** ids do filtro; cada um precisa aparecer na stack declarada da posição */
-	tech: string[];
 	what: string;
 	did?: CareerBullet[];
 	stack: string;
 };
-
-/** Nem toda entrada é engenharia de produto: a régua tem duas trilhas. */
-export const researchKinds: ReadonlySet<CareerKind> = new Set<CareerKind>(['pesquisa', 'ensino']);
 
 export const careerEntries: CareerEntry[] = [
 	{
@@ -42,7 +38,6 @@ export const careerEntries: CareerEntry[] = [
 		role: 'doutorado em engenharia elétrica e computação',
 		org: 'mackenzie',
 		orgHref: 'https://www.mackenzie.br',
-		tech: [],
 		what: 'continuidade da pesquisa do mestrado em dinâmica de autômatos celulares.',
 		stack: 'wolfram language · simulação · análise de dados',
 	},
@@ -54,7 +49,6 @@ export const careerEntries: CareerEntry[] = [
 		role: 'mestrado em engenharia elétrica e computação',
 		org: 'mackenzie',
 		orgHref: 'https://www.mackenzie.br',
-		tech: [],
 		what: 'pesquisa computacional em dinâmica de autômatos celulares, com bolsa CAPES. geração e análise de grandes volumes de simulações para correlacionar assincronismo de atualização e comportamento dinâmico.',
 		did: [
 			{
@@ -74,7 +68,6 @@ export const careerEntries: CareerEntry[] = [
 		role: 'desenvolvedor de software',
 		org: 'capta',
 		orgHref: 'https://capta.com.br/',
-		tech: ['dotnet', 'csharp'],
 		what: 'migração de sistema legado para .NET 8 MVC, com atualização de arquitetura e adequação à nova versão do framework.',
 		stack: '.net 8 · mvc · c#',
 	},
@@ -86,7 +79,6 @@ export const careerEntries: CareerEntry[] = [
 		role: 'engenheiro de software',
 		org: 'sinergyrh',
 		orgHref: 'https://sinergyrh.com.br',
-		tech: ['typescript', 'node', 'nestjs', 'nextjs', 'react', 'sqlserver', 'prisma', 'modelagem', 'cicd', 'api'],
 		what: 'produto novo, do zero, ao lado dos fundadores — do escopo ao deploy, participando também da priorização de funcionalidades.',
 		did: [
 			{ text: 'estruturei o projeto do zero: modelagem, arquitetura da API e organização dos repositórios' },
@@ -104,7 +96,6 @@ export const careerEntries: CareerEntry[] = [
 		org: 'metro telworks',
 		orgHref: 'https://metrotelworks.com/',
 		orgNote: '(tim brasil, tim itália, vivo)',
-		tech: ['python'],
 		what: 'análise de desempenho de rede no Crowdsourced Benchmark Service, do dado bruto ao relatório que chegava às equipes de rede.',
 		did: [
 			{ text: 'dashboards em Power BI usados por equipes técnicas e pela diretoria da TIM Brasil no acompanhamento de desempenho de rede' },
@@ -121,7 +112,6 @@ export const careerEntries: CareerEntry[] = [
 		role: 'desenvolvedor back-end',
 		org: 'mottu',
 		orgHref: 'https://mottu.com.br',
-		tech: ['typescript', 'node', 'nestjs', 'testes', 'api'],
 		what: 'camada BFF em Node.js e NestJS, responsável pela integração entre os microsserviços internos e o front-end da aplicação.',
 		did: [{ text: 'testes com Jest, elevando a cobertura da camada BFF' }],
 		stack: 'node.js · nestjs · typescript · jest',
@@ -134,7 +124,6 @@ export const careerEntries: CareerEntry[] = [
 		role: 'instrutor back-end',
 		org: 'trybe',
 		orgHref: 'https://www.betrybe.com',
-		tech: ['typescript', 'node', 'docker', 'mongodb', 'api'],
 		what: 'módulos de back-end: Docker, SQL, Node.js, TypeScript, MongoDB e deploy. melhor índice de desempenho entre as turmas da Trybe no período.',
 		did: [
 			{ text: 'mentorias técnicas semanais, gravadas e disponibilizadas como material de apoio' },
@@ -151,7 +140,6 @@ export const careerEntries: CareerEntry[] = [
 		role: 'engenheiro de software',
 		org: 'avita insurtech & lawtech',
 		orgHref: 'https://avitaseg.com.br',
-		tech: ['csharp', 'dotnet', 'react', 'angular', 'mysql', 'modelagem', 'api'],
 		what: 'integrei o desenvolvimento desde o início da empresa, presente em concepção, desenvolvimento, homologação e entrega em produção.',
 		did: [
 			{ text: 'APIs em .NET e front-ends em Angular, React e micro-frontends com SingleSPA' },
@@ -168,7 +156,6 @@ export const careerEntries: CareerEntry[] = [
 		role: 'desenvolvedor full stack',
 		org: 'radix engenharia e software',
 		orgHref: 'https://radixeng.com.br',
-		tech: ['csharp', 'typescript', 'mysql'],
 		what: 'entrei como estagiário e fui efetivado como pleno em seis meses. desenvolvimento e manutenção de aplicações em C#, TypeScript e MySQL, com testes em ambientes de desenvolvimento e homologação.',
 		stack: 'c# · typescript · mysql',
 	},
@@ -180,7 +167,6 @@ export const careerEntries: CareerEntry[] = [
 		role: 'pesquisa em tecnologia assistiva',
 		org: 'unasp',
 		orgHref: 'https://www.unasp.br',
-		tech: [],
 		what: 'último semestre da graduação, com as demais frentes encerradas para levar uma só até o fim: ensino a distância acessível para estudantes com deficiência auditiva, apoiado por chatbot. dados de matrícula do IBGE e do INEP como base, e um modelo de adaptação para plataformas como o Moodle.',
 		did: [
 			{ text: 'melhor artigo na categoria trabalho completo', after: ' — enaic xxi, 2019' },
@@ -200,7 +186,6 @@ export const careerEntries: CareerEntry[] = [
 		role: 'iniciação científica em sistemas multiagentes',
 		org: 'unasp',
 		orgHref: 'https://www.unasp.br',
-		tech: [],
 		what: 'dois anos na mesma pergunta: como uma população de agentes autônomos admite um agente novo, que ainda não tem histórico. reputação como critério de entrada, verificada em simulação.',
 		did: [
 			{ text: 'sistemas multiagentes: uma abordagem prática', after: ' — enaic xix, 2017' },
@@ -219,7 +204,6 @@ export const careerEntries: CareerEntry[] = [
 		role: 'estagiário full stack',
 		org: 'ibgc',
 		orgHref: 'https://www.ibgc.org.br',
-		tech: ['csharp', 'javascript', 'sqlserver'],
 		what: 'primeiro emprego na área. sistemas internos em C#, ASP.NET, JavaScript, PHP e SQL Server: novas funcionalidades, correções e operações de banco — CRUD, consultas, jobs e triggers.',
 		stack: 'c# · asp.net · javascript · sql server',
 	},
@@ -231,89 +215,11 @@ export const careerEntries: CareerEntry[] = [
 		role: 'iniciação científica em smart grids',
 		org: 'unasp',
 		orgHref: 'https://www.unasp.br',
-		tech: [],
 		what: 'primeiro ano da graduação e primeiro contato com pesquisa: redes elétricas inteligentes — medição, resposta à demanda e o que muda numa rede que passa a trocar dados nos dois sentidos.',
 		did: [{ text: 'redes elétricas inteligentes (smart grids)', after: ' — enaic xviii, 2016' }],
 		stack: 'smart grids · pesquisa',
 	},
 ];
-
-/**
- * Trabalho que ocupa meses de verdade mas não é vínculo, e por isso não entra
- * na trajetória. Sem ele a régua terminaria falsamente vazia.
- */
-export type RailSegment = {
-	id: string;
-	from: string;
-	to: string;
-	track: 'eng' | 'res';
-	title: string;
-	target: string;
-};
-
-export const railExtras: RailSegment[] = [
-	{
-		id: 'produto',
-		from: '2025-12',
-		to: 'agora',
-		track: 'eng',
-		title: 'produto próprio',
-		target: '#agora-produto',
-	},
-	// o doutorado já é entrada da trajetória; este segmento só dá ao item do
-	// "agora" o mesmo hover dos demais
-	{
-		id: 'agora-doutorado',
-		from: '2026-08',
-		to: 'agora',
-		track: 'res',
-		title: 'doutorado em engenharia elétrica e computação · mackenzie',
-		target: '#agora-doutorado',
-	},
-];
-
-/** Cada id precisa existir no `tech` de alguma entrada — filtro vazio é promessa quebrada. */
-export const techGroups = [
-	{
-		label: 'linguagens',
-		items: [
-			{ id: 'typescript', label: 'typescript' },
-			{ id: 'javascript', label: 'javascript' },
-			{ id: 'csharp', label: 'c#' },
-			{ id: 'python', label: 'python' },
-		],
-	},
-	{
-		label: 'back-end e front-end',
-		items: [
-			{ id: 'node', label: 'node.js' },
-			{ id: 'nestjs', label: 'nestjs' },
-			{ id: 'dotnet', label: '.net' },
-			{ id: 'api', label: 'apis rest' },
-			{ id: 'react', label: 'react' },
-			{ id: 'nextjs', label: 'next.js' },
-			{ id: 'angular', label: 'angular' },
-		],
-	},
-	{
-		label: 'dados',
-		items: [
-			{ id: 'modelagem', label: 'modelagem' },
-			{ id: 'sqlserver', label: 'sql server' },
-			{ id: 'mysql', label: 'mysql' },
-			{ id: 'mongodb', label: 'mongodb' },
-			{ id: 'prisma', label: 'prisma' },
-		],
-	},
-	{
-		label: 'infra e qualidade',
-		items: [
-			{ id: 'docker', label: 'docker' },
-			{ id: 'cicd', label: 'ci/cd' },
-			{ id: 'testes', label: 'testes' },
-		],
-	},
-] as const;
 
 export type EducationItem = {
 	title: string;
