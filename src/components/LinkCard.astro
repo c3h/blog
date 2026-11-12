@@ -36,7 +36,7 @@ const linkProps = href ? { href, target: '_blank', rel: 'noreferrer' } : {};
 		<Heading
 			class:list={[
 				'text-lg font-semibold text-text transition sm:text-[1.25rem]',
-				href && 'group-hover:text-accent group-focus-visible:text-accent',
+				href && 'group-hover:text-link group-focus-visible:text-link',
 			]}
 		>
 			{title}
@@ -45,7 +45,7 @@ const linkProps = href ? { href, target: '_blank', rel: 'noreferrer' } : {};
 			<ArrowUpRight
 				size={20}
 				class:list={[
-					'mt-1 shrink-0 text-subtle transition group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-accent group-focus-visible:-translate-y-0.5 group-focus-visible:translate-x-0.5 group-focus-visible:text-accent',
+					'mt-1 shrink-0 text-subtle transition group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-link group-focus-visible:-translate-y-0.5 group-focus-visible:translate-x-0.5 group-focus-visible:text-link',
 					revealArrowOnHover && 'opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100',
 				]}
 			/>

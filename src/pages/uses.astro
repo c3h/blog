@@ -12,7 +12,7 @@ const effortLevels = ['low', 'medium', 'high', 'xhigh', 'max'] as const;
 
 const effortClass = (level: number, effort: Effort) => {
 	if (level < effort.min) return 'text-subtle opacity-40';
-	if (level <= effort.typical) return 'text-accent';
+	if (level <= effort.typical) return 'text-link';
 	if (level <= effort.max) return 'text-subtle';
 	return 'text-subtle opacity-40';
 };
@@ -297,7 +297,7 @@ const sections: Section[] = [
 		{sections.map((section, sectionIndex) => (
 			<section class="page-rule pt-7 sm:pt-9 section-collapsible" data-collapsed="false">
 				<header class="mb-5 flex items-center gap-3.5">
-					<span class="font-mono text-xs text-accent sm:text-sm">{String(sectionIndex + 1).padStart(2, '0')}</span>
+					<span class="font-mono text-xs text-link sm:text-sm">{String(sectionIndex + 1).padStart(2, '0')}</span>
 					<h2 class="font-mono text-xs font-semibold uppercase tracking-[0.24em] text-muted sm:text-sm">{section.title}</h2>
 					<button
 						type="button"
@@ -327,11 +327,11 @@ const sections: Section[] = [
 							<div class="min-w-0">
 								<div class="flex flex-wrap items-baseline gap-x-2.5 gap-y-1">
 									<h3 class:list={['text-lg font-semibold text-text sm:text-[1.25rem]', { 'item-ended': item.ended }]}>{item.name}</h3>
-									{item.ended && <span class="font-mono text-[0.65rem] font-medium uppercase tracking-[0.12em] text-accent">encerrado</span>}
+									{item.ended && <span class="font-mono text-[0.65rem] font-medium uppercase tracking-[0.12em] text-link">encerrado</span>}
 									<span class="text-xs text-subtle sm:text-sm">{item.meta}</span>
 								</div>
 								{item.tags && item.tags.length > 0 && (
-									<div class="mt-2 flex flex-wrap items-center gap-1.5 font-mono text-xs text-accent">
+									<div class="mt-2 flex flex-wrap items-center gap-1.5 font-mono text-xs text-link">
 										{item.tags.map((tag, tagIndex) => (
 											<>
 												{tagIndex > 0 && <span aria-hidden="true" class="text-subtle">·</span>}
@@ -357,7 +357,7 @@ const sections: Section[] = [
 								<ul class="mt-2.5 grid gap-1.5 text-sm leading-5.5 text-subtle">
 									{item.notes.map((note) => (
 										<li class="flex gap-2">
-											<span aria-hidden="true" class="text-accent">{note.kind === 'pos' ? '+' : '-'}</span>
+											<span aria-hidden="true" class="text-link">{note.kind === 'pos' ? '+' : '-'}</span>
 											<span>{note.text}</span>
 										</li>
 									))}

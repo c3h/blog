@@ -23,7 +23,7 @@ const { posts, compact = false } = Astro.props;
 				{formatDate(post.data.date)}
 			</time>
 			<span class="min-w-0">
-				<span class="block text-base leading-snug text-text transition group-hover:text-accent sm:text-lg">
+				<span class="block text-base leading-snug text-text transition group-hover:text-link sm:text-lg">
 					{post.data.title}
 				</span>
 				{!compact && <span class="mt-1.5 block max-w-2xl text-sm leading-5.5 text-muted">{post.data.description}</span>}

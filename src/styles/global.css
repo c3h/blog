@@ -7,10 +7,13 @@
 	--panel: #181818;
 	--text: #f4f4f2;
 	--muted: #b8bbc3;
-	--subtle: #6f7685;
+	/* texto pequeno: fecha 4.5:1 contra --bg e --panel */
+	--subtle: #858c9b;
 	--line: #2a2a2a;
 	--accent: #ff6b2b;
 	--accent-2: #ff9d5c;
+	/* o acento como cor de texto. no escuro é o próprio laranja */
+	--link: var(--accent);
 	--ring: rgba(255, 107, 43, 0.28);
 }
 
@@ -21,10 +24,12 @@
 	--panel: #ffffff;
 	--text: #12181f;
 	--muted: #53606d;
-	--subtle: #788491;
+	--subtle: #626e7a;
 	--line: #dce3df;
 	--accent: #ff6b2b;
 	--accent-2: #ff9d5c;
+	/* o laranja não chega a 3:1 em fundo claro: como texto, escurece */
+	--link: #b3410e;
 	--ring: rgba(255, 107, 43, 0.28);
 }
 
@@ -49,6 +54,7 @@
 	--color-line: var(--line);
 	--color-accent: var(--accent);
 	--color-accent-2: var(--accent-2);
+	--color-link: var(--link);
 }
 
 * {
@@ -221,18 +227,17 @@ input {
 	margin-top: 0;
 }
 
-/* link dentro de texto corrido — mesmo tratamento no corpo dos posts e fora dele.
-   uma página pode trocar a cor definindo --link; sem ele, vale o acento */
+/* link dentro de texto corrido — mesmo tratamento no corpo dos posts e fora dele */
 .link-inline,
 .prose-post a {
-	color: var(--link, var(--accent));
+	color: var(--link);
 	text-decoration: underline;
-	text-decoration-color: color-mix(in srgb, var(--link, var(--accent)) 45%, transparent);
+	text-decoration-color: color-mix(in srgb, var(--link) 45%, transparent);
 }
 
 .link-inline:hover,
 .prose-post a:hover {
-	text-decoration-color: var(--link, var(--accent));
+	text-decoration-color: var(--link);
 }
 
 .prose-post ul,
@@ -465,6 +470,7 @@ html[data-theme='light'] .prose-post pre.astro-code span {
 		--subtle: #666;
 		--line: #ccc;
 		--accent: #111;
+		--link: #111;
 	}
 
 	@page {

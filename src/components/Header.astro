@@ -16,7 +16,7 @@ const currentPath = Astro.url.pathname;
 						aria-current={active ? 'page' : undefined}
 						class:list={[
 							'group text-sm transition sm:text-base',
-							active ? 'text-accent' : 'text-muted hover:text-accent',
+							active ? 'text-link' : 'text-muted hover:text-link',
 						]}
 					>
 						<span class="hidden text-subtle transition group-hover:text-text sm:inline">[{item.key}]</span>{' '}
@@ -29,7 +29,7 @@ const currentPath = Astro.url.pathname;
 			<button
 				type="button"
 				data-command-open
-				class="inline-flex h-7 items-center gap-1.5 rounded-md px-1.5 text-xs text-subtle transition hover:bg-panel hover:text-accent"
+				class="inline-flex h-7 items-center gap-1.5 rounded-md px-1.5 text-xs text-subtle transition hover:bg-panel hover:text-link"
 				aria-label="Abrir busca"
 				title="Pressione / para buscar"
 			>
@@ -40,7 +40,7 @@ const currentPath = Astro.url.pathname;
 			<button
 				type="button"
 				data-theme-toggle
-				class="theme-toggle inline-grid size-7 place-items-center rounded-md text-muted transition hover:bg-panel hover:text-accent"
+				class="theme-toggle inline-grid size-7 place-items-center rounded-md text-muted transition hover:bg-panel hover:text-link"
 				aria-label="Alternar tema"
 			>
 				<SunMoon size={16} data-theme-icon="system" />

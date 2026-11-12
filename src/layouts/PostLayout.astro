@@ -23,7 +23,7 @@ const nextHref = nextPost ? postHref(nextPost) : null;
 		<Font cssVariable="--font-lora" preload={[{ weight: 400, style: 'normal', subset: 'latin' }]} />
 	</Fragment>
 	<article>
-		<a href="/blog/" class="mb-9 inline-flex items-center gap-1.5 text-sm text-subtle transition hover:text-accent sm:mb-10 sm:text-base">
+		<a href="/blog/" class="mb-9 inline-flex items-center gap-1.5 text-sm text-subtle transition hover:text-link sm:mb-10 sm:text-base">
 			<ArrowLeft size={18} class="transition group-hover:-translate-x-0.5" /> voltar
 		</a>
 		<header>
@@ -49,7 +49,7 @@ const nextHref = nextPost ? postHref(nextPost) : null;
 				>
 					<div>
 						{previousPost && (
-								<a href={prevHref} class="group block transition hover:text-accent">
+								<a href={prevHref} class="group block transition hover:text-link">
 									<span class="flex items-baseline gap-1.5 leading-none">
 										<kbd class="hidden font-sans opacity-60 sm:inline">[←]</kbd>
 										<span>anterior</span>
@@ -60,7 +60,7 @@ const nextHref = nextPost ? postHref(nextPost) : null;
 					</div>
 					<div class="sm:text-right">
 						{nextPost && (
-								<a href={nextHref} class="group block transition hover:text-accent">
+								<a href={nextHref} class="group block transition hover:text-link">
 									<span class="flex items-baseline gap-1.5 leading-none sm:justify-end">
 										<span>próximo</span>
 										<kbd class="hidden font-sans opacity-60 sm:inline">[→]</kbd>
