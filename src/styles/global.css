@@ -221,17 +221,18 @@ input {
 	margin-top: 0;
 }
 
-/* link dentro de texto corrido — mesmo tratamento no corpo dos posts e fora dele */
+/* link dentro de texto corrido — mesmo tratamento no corpo dos posts e fora dele.
+   uma página pode trocar a cor definindo --link; sem ele, vale o acento */
 .link-inline,
 .prose-post a {
-	color: var(--accent);
+	color: var(--link, var(--accent));
 	text-decoration: underline;
-	text-decoration-color: color-mix(in srgb, var(--accent) 45%, transparent);
+	text-decoration-color: color-mix(in srgb, var(--link, var(--accent)) 45%, transparent);
 }
 
 .link-inline:hover,
 .prose-post a:hover {
-	text-decoration-color: var(--accent);
+	text-decoration-color: var(--link, var(--accent));
 }
 
 .prose-post ul,
