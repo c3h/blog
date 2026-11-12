@@ -33,7 +33,9 @@ const pageTitle = title === site.title ? title : `${title} - ${site.author}`;
 		<link rel="canonical" href={canonical} />
 		<link rel="icon" type="image/svg+xml" href="/icon.svg" />
 		<link rel="alternate" type="application/rss+xml" title={site.title} href="/rss.xml" />
-		<Font cssVariable="--font-lora" preload />
+		{/* um arquivo só, usado na primeira dobra de toda página */}
+		<Font cssVariable="--font-geist-mono" preload />
+		<slot name="head" />
 		<meta property="og:type" content="website" />
 		<meta property="og:site_name" content={site.author} />
 		<meta property="og:title" content={pageTitle} />

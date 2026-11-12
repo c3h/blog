@@ -2,6 +2,7 @@
 import BaseLayout from './BaseLayout.astro';
 import DecryptText from '../components/DecryptText.astro';
 import { ArrowLeft } from '@lucide/astro';
+import { Font } from 'astro:assets';
 import type { CollectionEntry } from 'astro:content';
 import { formatLongDate, postHref, readingTime } from '../lib/posts';
 
@@ -17,6 +18,10 @@ const nextHref = nextPost ? postHref(nextPost) : null;
 ---
 
 <BaseLayout title={post.data.title} description={post.data.description}>
+	{/* a serifa é só do corpo do post: o itálico e o latin-ext baixam se o texto pedir */}
+	<Fragment slot="head">
+		<Font cssVariable="--font-lora" preload={[{ weight: 400, style: 'normal', subset: 'latin' }]} />
+	</Fragment>
 	<article>
 		<a href="/blog/" class="mb-9 inline-flex items-center gap-1.5 text-sm text-subtle transition hover:text-accent sm:mb-10 sm:text-base">
 			<ArrowLeft size={18} class="transition group-hover:-translate-x-0.5" /> voltar
