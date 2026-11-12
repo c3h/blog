@@ -9,10 +9,7 @@ export const site = {
 		github: 'https://github.com/c3h',
 		linkedin: 'https://www.linkedin.com/in/daniel-gimigliano/',
 		lattes: 'http://lattes.cnpq.br/6585120736457645',
-		email: 'mailto:hey@gimigliano.blog',
 	},
-	/** só existe no currículo impresso; na tela não há onde clicar num telefone */
-	phone: '+55 11 95173-4126',
 };
 
 export const navItems = [
@@ -31,5 +28,7 @@ export const socialLinks = [
 	{ href: site.social.linkedin, label: 'linkedin' },
 	{ href: site.social.lattes, label: 'lattes' },
 	{ href: site.social.github, label: 'github' },
-	{ href: site.social.email, label: 'email' },
 ] as const;
+
+/** para onde o link de e-mail aponta antes de virar mailto — o script fica no BaseLayout */
+export const contactHref = '/about/#contato';

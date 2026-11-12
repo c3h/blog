@@ -4,6 +4,7 @@ import { Font } from 'astro:assets';
 import CommandPalette from '../components/CommandPalette.astro';
 import Footer from '../components/Footer.astro';
 import Header from '../components/Header.astro';
+import { mailParts } from '../lib/contact';
 import { site } from '../lib/site';
 
 type Props = {
@@ -83,6 +84,19 @@ const pageTitle = title === site.title ? title : `${title} - ${site.author}`;
 				<path d="M3.5 7.5L8 3l4.5 4.5" />
 			</svg>
 		</button>
+		{/* um link data-mail nasce apontando para /about/#contato e só vira mailto no
+		    primeiro gesto de quem vai clicar: passar o ponteiro, focar, tocar. sem JS
+		    continua levando à página de contato. inline: nenhuma requisição a mais */}
+		<script is:inline define:vars={{ mail: mailParts }}>
+			for (const link of document.querySelectorAll('a[data-mail]')) {
+				const arm = () => {
+					link.href = 'mailto:' + [mail.user, mail.domain].join('@');
+				};
+				for (const gesture of ['pointerenter', 'focus', 'touchstart', 'click']) {
+					link.addEventListener(gesture, arm, { once: true, passive: true });
+				}
+			}
+		</script>
 		<script is:inline>
 			(() => {
 				const btn = document.getElementById('back-to-top');

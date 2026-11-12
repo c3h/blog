@@ -1,5 +1,5 @@
 ---
-import { secondaryNav, socialLinks } from '../lib/site';
+import { contactHref, secondaryNav, socialLinks } from '../lib/site';
 ---
 
 <footer class="shell border-t hairline pt-1.5 pb-6">
@@ -14,5 +14,7 @@ import { secondaryNav, socialLinks } from '../lib/site';
 				<a class="transition hover:text-link" href={item.href}>{item.label}</a>
 			</>
 		))}
+		<span aria-hidden="true" class="text-line">·</span>
+		<a class="transition hover:text-link" href={contactHref} data-mail>email</a>
 	</div>
 </footer>

@@ -1,12 +1,13 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import DecryptText from '../components/DecryptText.astro';
+import PageHeader from '../components/PageHeader.astro';
 import SectionHeader from '../components/SectionHeader.astro';
 import { ArrowUpRight } from '@lucide/astro';
 import { careerEntries } from '../data/career';
 import { projects } from '../data/projects';
 import { publications } from '../data/publications';
-import { site, socialLinks } from '../lib/site';
+import { mailParts, phoneParts } from '../lib/contact';
+import { contactHref, site, socialLinks } from '../lib/site';
 import { printUrl } from '../lib/url';
 
 const description =
@@ -46,14 +47,11 @@ const RULES = [30, 90, 110, 150, 184];
 const DEFAULT_RULE = 110;
 
 /**
- * Contato por extenso — impresso, nunca renderizado na tela.
- * Na tela os endereços existem só como destino de link, longe de raspadores.
+ * Contato por extenso, só no papel. Os perfis são públicos e ficam no HTML;
+ * e-mail e telefone entram pelo script ao lado do parágrafo, na hora de
+ * imprimir — elemento escondido por CSS continua à vista de raspador.
  */
-const printContact = [
-	printUrl(site.social.email),
-	site.phone,
-	...socialLinks.filter((item) => item.href !== site.social.email).map((item) => printUrl(item.href)),
-];
+const printSocial = socialLinks.map((item) => printUrl(item.href)).join(' · ');
 ---
 
 <BaseLayout title="Sobre" description={description}>
@@ -62,18 +60,11 @@ const printContact = [
 	<script is:inline>document.documentElement.dataset.js = '1';</script>
 
 	<div class="about">
-		<section class="page-header">
-			<DecryptText
-				as="h1"
-				text="daniel gimigliano"
-				class="text-[2.4rem] font-bold leading-[1.1] tracking-[-0.01em] text-text sm:text-[3.3rem]"
-			/>
-			<p class="page-description !mt-3">engenheiro de software · back-end e produto</p>
-
+		<PageHeader title="sobre">
 			<div class="now">
 				<p>
-					trabalho com back-end desde 2018, em node e .net. gosto de acompanhar um sistema da concepção
-					até a produção, de preferência em times pequenos.
+					sou engenheiro de software, de back-end e produto. gosto de acompanhar um sistema da
+					concepção até a produção, de preferência em times pequenos.
 				</p>
 				<p>
 					hoje construo um produto próprio, que ainda não foi a público, e nas horas vagas o
@@ -88,20 +79,36 @@ const printContact = [
 				</p>
 			</div>
 
-			<div class="actions">
+			{/* o único ponto de contato direto da página; o rodapé do site aponta para cá */}
+			<div class="actions" id="contato">
 				<p class="avail">
 					<span class="pip" aria-hidden="true"></span>
 					<span>disponível para consultoria e freelas de back-end, remoto</span>
 				</p>
-				<a class="cta" href={site.social.email}>
+				{/* vira mailto no primeiro gesto — o script fica no BaseLayout */}
+				<a class="cta" href={contactHref} data-mail>
 					me escrever
 					<ArrowUpRight size={18} />
 				</a>
-				<p class="hidden print:block">{printContact.join(' · ')}</p>
+				<noscript>
+					<p>para me escrever: {mailParts.user} [arroba] {mailParts.domain}</p>
+				</noscript>
+				<p class="where">engenheiro coelho, sp · pt-br nativo · en profissional</p>
+				<p class="hidden print:block" data-print-contact>{printSocial}</p>
+				<script is:inline define:vars={{ mail: mailParts, phone: phoneParts }}>
+					const contact = document.querySelector('[data-print-contact]');
+					const social = contact.textContent;
+					window.addEventListener('beforeprint', () => {
+						contact.textContent = [[mail.user, mail.domain].join('@'), phone.join('-'), social].join(' · ');
+					});
+					window.addEventListener('afterprint', () => {
+						contact.textContent = social;
+					});
+				</script>
 			</div>
-		</section>
+		</PageHeader>
 
-		<section class="page-rule py-10 sm:py-12">
+		<section class="page-rule pt-10 sm:pt-12">
 			<SectionHeader title="o que eu pesquiso" />
 			<div class="research">
 				<p>
@@ -170,60 +177,42 @@ const printContact = [
 			</div>
 		</section>
 
-		<section class="page-rule foot pt-10 sm:pt-12">
-			<p class="where">engenheiro coelho, sp · pt-br nativo · en profissional</p>
-			<nav aria-label="contato">
-				<ul class="links">
-					<li><a href={pdf} download>currículo em pdf</a></li>
-					{socialLinks.map((item) => (
-						<li><a href={item.href}>{item.label}</a></li>
-					))}
-				</ul>
-			</nav>
-		</section>
 	</div>
 </BaseLayout>
 
 <style>
 	/* ============================================================
-	   /about — uma página curta sobre o presente. O layout e os títulos
-	   vêm do site; aqui fica só o que é desta página: a escala de leitura
-	   e o autômato.
+	   /about — uma página curta sobre o presente. Layout, títulos, cores e
+	   escala de texto vêm do site: corrido em 14px, metadado em 12px. Aqui
+	   fica só o que é desta página: a medida da coluna e o autômato.
 	   ============================================================ */
 	.about {
-		/* o --subtle do site não fecha 4.5:1 em texto pequeno, nem o laranja
-		   em fundo claro: metadado e link ganham degraus próprios aqui */
-		--meta: #8f96a5;
-		--link: var(--accent);
+		/* uma coluna de leitura só, em rem: a mesma margem direita para o
+		   corrido e para o metadado, que têm corpos diferentes */
+		--measure: 36rem;
 		--ca-on: #8b8e96;
 		--ca-off: #1b1b1d;
-		--ca-seed: var(--accent);
-		font-size: 0.9375rem;
-		line-height: 1.6;
+		/* o --link já escurece no claro, onde o laranja não chega a 3:1
+		   contra a célula apagada */
+		--ca-seed: var(--link);
+		font-size: 0.875rem;
+		line-height: 1.625;
 		color: var(--muted);
 	}
 	:global(:root[data-theme='light']) .about {
-		--meta: #5d6975;
-		--link: #b3410e;
 		--ca-on: #5f6d63;
 		--ca-off: #e6ebe7;
-		/* o laranja do site não chega a 3:1 contra a célula apagada no claro */
-		--ca-seed: var(--link);
 	}
 
-	/* o link de texto é o do site, que lê o --link definido acima */
 	.link-inline {
 		transition: text-decoration-color 160ms ease;
 	}
 
 	.now {
-		margin-top: 2rem;
-		max-width: 60ch;
+		margin-top: 1.5rem;
+		max-width: var(--measure);
 		display: grid;
 		gap: 0.9rem;
-		font-size: 1rem;
-		line-height: 1.65;
-		color: var(--text);
 	}
 
 	.actions {
@@ -233,6 +222,7 @@ const printContact = [
 		justify-items: start;
 	}
 	.avail {
+		max-width: var(--measure);
 		display: flex;
 		gap: 0.7rem;
 		align-items: flex-start;
@@ -262,7 +252,7 @@ const printContact = [
 
 	.research {
 		margin-top: -1rem;
-		max-width: 62ch;
+		max-width: var(--measure);
 		display: grid;
 		gap: 0.75rem;
 	}
@@ -275,7 +265,7 @@ const printContact = [
 		display: flex;
 		flex-wrap: wrap;
 		gap: 0.6rem 2rem;
-		font-size: 0.8125rem;
+		font-size: 0.75rem;
 	}
 	.group {
 		display: flex;
@@ -285,7 +275,7 @@ const printContact = [
 	}
 	.label {
 		margin-right: 0.4rem;
-		color: var(--meta);
+		color: var(--subtle);
 	}
 	.chip {
 		min-height: 2rem;
@@ -330,7 +320,9 @@ const printContact = [
 		height: 251px;
 	}
 	/* sem JS não há o que desenhar: controles não fazem nada, e a legenda sozinha
-	   descreveria uma figura ausente */
+	   descreveria uma figura ausente. o botão de contato também depende do script;
+	   no lugar dele entra o <noscript> */
+	:global(:root:not([data-js])) .cta,
 	:global(:root:not([data-js])) .controls,
 	:global(:root:not([data-js])) .diagrams,
 	:global(:root:not([data-js])) .legend,
@@ -340,8 +332,8 @@ const printContact = [
 	figcaption,
 	.legend,
 	.where {
-		color: var(--meta);
-		font-size: 0.8125rem;
+		color: var(--subtle);
+		font-size: 0.75rem;
 		line-height: 1.5;
 	}
 	figcaption {
@@ -353,27 +345,7 @@ const printContact = [
 	}
 	.legend {
 		margin-top: 1rem;
-		max-width: 62ch;
-	}
-
-	.foot {
-		display: grid;
-		gap: 0.75rem;
-	}
-	.links {
-		display: flex;
-		flex-wrap: wrap;
-		gap: 0.25rem 1.25rem;
-	}
-	.links a {
-		display: inline-block;
-		padding-block: 0.3rem;
-		color: var(--muted);
-		text-decoration: underline;
-		text-decoration-color: var(--line);
-		transition:
-			color 160ms ease,
-			text-decoration-color 160ms ease;
+		max-width: var(--measure);
 	}
 
 	@media (hover: hover) and (pointer: fine) {
@@ -386,23 +358,12 @@ const printContact = [
 		.chip:hover {
 			color: var(--text);
 		}
-		.links a:hover {
-			color: var(--link);
-			text-decoration-color: currentColor;
-		}
 	}
 
 	/* no papel o contato são endereços por extenso, e os controles não existem */
 	@media print {
-		/* o papel é o mesmo, qualquer que seja o tema da tela */
-		.about,
-		:global(:root[data-theme='light']) .about {
-			--meta: #666;
-			--link: #111;
-		}
 		.cta,
-		.controls,
-		.foot {
+		.controls {
 			display: none;
 		}
 		.ca {
@@ -421,8 +382,8 @@ const printContact = [
 		/* na tela é só para leitor de tela (sr-only); no papel vira legenda */
 		.state {
 			margin-top: 0.5rem;
-			color: var(--meta);
-			font-size: 0.8125rem;
+			color: var(--subtle);
+			font-size: 0.75rem;
 		}
 	}
 </style>
