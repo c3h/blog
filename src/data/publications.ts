@@ -1,3 +1,5 @@
+import { joinMeta } from '../lib/meta';
+
 export type Publication = {
 	title: string;
 	authors: string;
@@ -7,6 +9,10 @@ export type Publication = {
 	description: string;
 	href?: string;
 };
+
+/** a linha de referência de uma publicação, a mesma onde quer que ela apareça */
+export const publicationMeta = (publication: Publication) =>
+	joinMeta([publication.authors, publication.venue, publication.country, publication.year]);
 
 export const publications: Publication[] = [
 	{
