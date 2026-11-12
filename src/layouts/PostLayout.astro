@@ -1,6 +1,7 @@
 ---
 import BaseLayout from './BaseLayout.astro';
 import DecryptText from '../components/DecryptText.astro';
+import Separator from '../components/Separator.astro';
 import { ArrowLeft } from '@lucide/astro';
 import { Font } from 'astro:assets';
 import type { CollectionEntry } from 'astro:content';
@@ -23,7 +24,7 @@ const nextHref = nextPost ? postHref(nextPost) : null;
 		<Font cssVariable="--font-lora" preload={[{ weight: 400, style: 'normal', subset: 'latin' }]} />
 	</Fragment>
 	<article>
-		<a href="/blog/" class="mb-9 inline-flex items-center gap-1.5 text-sm text-subtle transition hover:text-link sm:mb-10 sm:text-base">
+		<a href="/blog/" class="group mb-9 inline-flex items-center gap-1.5 text-sm text-subtle transition hover:text-link sm:mb-10 sm:text-base">
 			<ArrowLeft size={18} class="transition group-hover:-translate-x-0.5" /> voltar
 		</a>
 		<header>
@@ -34,7 +35,7 @@ const nextHref = nextPost ? postHref(nextPost) : null;
 			/>
 			<div class="mt-5 flex flex-wrap items-center gap-2 text-sm text-subtle sm:text-base">
 				<time datetime={post.data.date.toISOString()}>{formatLongDate(post.data.date)}</time>
-				<span aria-hidden="true">·</span>
+				<Separator />
 				<span>{readingTime(post.body ?? '')} min de leitura</span>
 			</div>
 		</header>
@@ -81,7 +82,7 @@ const nextHref = nextPost ? postHref(nextPost) : null;
 		if (!codeEl) return;
 		const button = document.createElement('button');
 		button.type = 'button';
-		button.className = 'code-copy';
+		button.className = 'outline-button code-copy';
 		button.setAttribute('aria-label', 'copiar código');
 		button.textContent = 'copiar';
 		let resetTimer;

@@ -1,5 +1,6 @@
 ---
 import '../styles/global.css';
+import { ArrowUp } from '@lucide/astro';
 import { Font } from 'astro:assets';
 import CommandPalette from '../components/CommandPalette.astro';
 import Footer from '../components/Footer.astro';
@@ -75,14 +76,11 @@ const pageTitle = title === site.title ? title : `${title} - ${site.author}`;
 		<button
 			type="button"
 			id="back-to-top"
-			class="back-to-top"
+			class="outline-button back-to-top"
 			aria-label="voltar ao topo"
 			data-visible="false"
 		>
-			<svg aria-hidden="true" viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
-				<path d="M8 13V3" />
-				<path d="M3.5 7.5L8 3l4.5 4.5" />
-			</svg>
+			<ArrowUp size={16} />
 		</button>
 		{/* um link data-mail nasce apontando para /about/#contato e só vira mailto no
 		    primeiro gesto de quem vai clicar: passar o ponteiro, focar, tocar. sem JS

@@ -35,7 +35,7 @@ const linkProps = href ? { href, target: '_blank', rel: 'noreferrer' } : {};
 	<div class="flex items-start justify-between gap-2.5">
 		<Heading
 			class:list={[
-				'text-lg font-semibold text-text transition sm:text-[1.25rem]',
+				'entry-title transition',
 				href && 'group-hover:text-link group-focus-visible:text-link',
 			]}
 		>
@@ -51,12 +51,12 @@ const linkProps = href ? { href, target: '_blank', rel: 'noreferrer' } : {};
 			/>
 		)}
 	</div>
-	<p class="mt-1 text-xs text-subtle sm:text-sm" data-print-url={href ? printUrl(href) : undefined}>{meta}</p>
-	{description && <p class="mt-2.5 text-sm leading-5.5 text-muted sm:text-base">{description}</p>}
+	<p class="entry-meta mt-1" data-print-url={href ? printUrl(href) : undefined}>{meta}</p>
+	{description && <p class="entry-description mt-2.5">{description}</p>}
 	{pills && pills.length > 0 && (
 		<div class="mt-3.5 flex flex-wrap gap-1.5">
 			{pills.map((pill) => (
-				<span class="bg-panel px-2 py-1 text-[0.5rem] text-subtle sm:text-xs">{pill}</span>
+				<span class="bg-panel px-2 py-1 text-xs text-subtle">{pill}</span>
 			))}
 		</div>
 	)}

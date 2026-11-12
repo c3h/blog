@@ -1,6 +1,8 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import PageHeader from '../components/PageHeader.astro';
+import Separator from '../components/Separator.astro';
+import { ChevronDown } from '@lucide/astro';
 
 type Icon = { light: string; dark: string };
 
@@ -283,13 +285,11 @@ const sections: Section[] = [
 			slot="actions"
 			type="button"
 			id="toggle-all"
-			class="section-toggle ml-auto"
+			class="outline-button section-toggle ml-auto"
 			aria-expanded="true"
 			aria-label="alternar todas as seções"
 		>
-			<svg aria-hidden="true" viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
-				<path d="M3.5 6L8 10.5L12.5 6" />
-			</svg>
+			<ChevronDown size={16} />
 		</button>
 	</PageHeader>
 
@@ -301,13 +301,11 @@ const sections: Section[] = [
 					<h2 class="font-mono text-xs font-semibold uppercase tracking-[0.24em] text-muted sm:text-sm">{section.title}</h2>
 					<button
 						type="button"
-						class="section-toggle ml-auto"
+						class="outline-button section-toggle ml-auto"
 						aria-expanded="true"
 						aria-label={`alternar seção ${section.title}`}
 					>
-						<svg aria-hidden="true" viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
-							<path d="M3.5 6L8 10.5L12.5 6" />
-						</svg>
+						<ChevronDown size={16} />
 					</button>
 				</header>
 				<div class="section-body">
@@ -327,15 +325,15 @@ const sections: Section[] = [
 							</div>
 							<div class="min-w-0">
 								<div class="flex flex-wrap items-baseline gap-x-2.5 gap-y-1">
-									<h3 class:list={['text-lg font-semibold text-text sm:text-[1.25rem]', { 'item-ended': item.ended }]}>{item.name}</h3>
+									<h3 class:list={['entry-title', { 'item-ended': item.ended }]}>{item.name}</h3>
 									{item.ended && <span class="font-mono text-[0.65rem] font-medium uppercase tracking-[0.12em] text-link">encerrado</span>}
-									<span class="text-xs text-subtle sm:text-sm">{item.meta}</span>
+									<span class="entry-meta">{item.meta}</span>
 								</div>
 								{item.tags && item.tags.length > 0 && (
 									<div class="mt-2 flex flex-wrap items-center gap-1.5 font-mono text-xs text-link">
 										{item.tags.map((tag, tagIndex) => (
 											<>
-												{tagIndex > 0 && <span aria-hidden="true" class="text-subtle">·</span>}
+												{tagIndex > 0 && <Separator class="text-subtle" />}
 												<span>{tag}</span>
 											</>
 										))}
@@ -346,7 +344,7 @@ const sections: Section[] = [
 										<span class="text-text">raciocínio:</span>
 										{effortLevels.map((level, levelIndex) => (
 											<>
-												{levelIndex > 0 && <span aria-hidden="true" class="text-subtle">·</span>}
+												{levelIndex > 0 && <Separator class="text-subtle" />}
 												<span class={effortClass(levelIndex, item.effort!)}>
 													{level}
 												</span>
@@ -354,7 +352,7 @@ const sections: Section[] = [
 										))}
 									</div>
 								)}
-								<p class="mt-2.5 text-sm leading-5.5 text-muted sm:text-base">{item.description}</p>
+								<p class="entry-description mt-2.5">{item.description}</p>
 								<ul class="mt-2.5 grid gap-1.5 text-sm leading-5.5 text-subtle">
 									{item.notes.map((note) => (
 										<li class="flex gap-2">
