@@ -1,0 +1,30 @@
+---
+import { ArrowUpRight } from '@lucide/astro';
+import type { HTMLAttributes } from 'astro/types';
+
+/** o link de ação do site: leva a outra página, e a seta diz que é para lá que se vai */
+type Props = HTMLAttributes<'a'> & {
+	label: string;
+	/** texto para tela estreita; sem ele o rótulo é o mesmo em toda largura */
+	shortLabel?: string;
+};
+
+const { label, shortLabel, class: className, ...rest } = Astro.props;
+---
+
+<a
+	{...rest}
+	class:list={['group inline-flex items-center gap-1 text-sm text-link transition hover:text-text sm:text-base', className]}
+>
+	{
+		shortLabel ? (
+			<>
+				<span class="sm:hidden">{shortLabel}</span>
+				<span class="hidden sm:inline">{label}</span>
+			</>
+		) : (
+			label
+		)
+	}
+	<ArrowUpRight size={18} class="transition group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+</a>

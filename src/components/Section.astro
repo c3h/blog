@@ -1,0 +1,19 @@
+---
+import SectionHeader from './SectionHeader.astro';
+
+/** uma seção de página: régua em cima, título e o conteúdo. a última não tem respiro embaixo, que já é do <main> */
+type Props = {
+	title: string;
+	href?: string;
+	linkLabel?: string;
+};
+
+const { title, href, linkLabel } = Astro.props;
+/** sem conteúdo a seção é só o título, e o título não reserva espaço para o que não vem */
+const headerOnly = !Astro.slots.has('default');
+---
+
+<section class="page-rule py-10 last:pb-0 sm:py-12">
+	<SectionHeader title={title} href={href} linkLabel={linkLabel} flush={headerOnly} />
+	<slot />
+</section>

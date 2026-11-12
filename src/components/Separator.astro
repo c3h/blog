@@ -1,0 +1,11 @@
+---
+/** o ponto entre dois metadados na mesma linha. é desenho, não conteúdo: leitor de tela pula */
+type Props = {
+	char?: '·' | '|';
+	class?: string;
+};
+
+const { char = '·', class: className } = Astro.props;
+---
+
+<span aria-hidden="true" class={className}>{char}</span>

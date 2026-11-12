@@ -1,5 +1,6 @@
 ---
 import { contactHref, secondaryNav, socialLinks } from '../lib/site';
+import Separator from './Separator.astro';
 ---
 
 <footer class="shell border-t hairline pt-1.5 pb-6">
@@ -7,14 +8,14 @@ import { contactHref, secondaryNav, socialLinks } from '../lib/site';
 		{secondaryNav.map((item) => (
 			<a class="transition hover:text-link" href={item.href}>{item.label}</a>
 		))}
-		<span aria-hidden="true" class="text-line">|</span>
+		<Separator char="|" class="text-line" />
 		{socialLinks.map((item, index) => (
 			<>
-				{index > 0 && <span aria-hidden="true" class="text-line">·</span>}
+				{index > 0 && <Separator class="text-line" />}
 				<a class="transition hover:text-link" href={item.href}>{item.label}</a>
 			</>
 		))}
-		<span aria-hidden="true" class="text-line">·</span>
+		<Separator class="text-line" />
 		<a class="transition hover:text-link" href={contactHref} data-mail>email</a>
 	</div>
 </footer>
