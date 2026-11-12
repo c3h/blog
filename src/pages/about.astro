@@ -1,12 +1,13 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import PageHeader from '../components/PageHeader.astro';
-import SectionHeader from '../components/SectionHeader.astro';
-import { ArrowUpRight } from '@lucide/astro';
+import ArrowLink from '../components/ArrowLink.astro';
+import Section from '../components/Section.astro';
 import { careerEntries } from '../data/career';
 import { projects } from '../data/projects';
 import { publications } from '../data/publications';
 import { mailParts, phoneParts } from '../lib/contact';
+import { joinMeta } from '../lib/meta';
 import { contactHref, site, socialLinks } from '../lib/site';
 import { printUrl } from '../lib/url';
 
@@ -51,7 +52,7 @@ const DEFAULT_RULE = 110;
  * e-mail e telefone entram pelo script ao lado do parágrafo, na hora de
  * imprimir — elemento escondido por CSS continua à vista de raspador.
  */
-const printSocial = socialLinks.map((item) => printUrl(item.href)).join(' · ');
+const printSocial = joinMeta(socialLinks.map((item) => printUrl(item.href)));
 ---
 
 <BaseLayout title="Sobre" description={description}>
@@ -86,10 +87,7 @@ const printSocial = socialLinks.map((item) => printUrl(item.href)).join(' · ');
 					<span>disponível para consultoria e freelas de back-end, remoto</span>
 				</p>
 				{/* vira mailto no primeiro gesto — o script fica no BaseLayout */}
-				<a class="cta" href={contactHref} data-mail>
-					me escrever
-					<ArrowUpRight size={18} />
-				</a>
+				<ArrowLink class="cta" href={contactHref} data-mail label="me escrever" />
 				<noscript>
 					<p>para me escrever: {mailParts.user} [arroba] {mailParts.domain}</p>
 				</noscript>
@@ -108,8 +106,7 @@ const printSocial = socialLinks.map((item) => printUrl(item.href)).join(' · ');
 			</div>
 		</PageHeader>
 
-		<section class="page-rule pt-10 sm:pt-12">
-			<SectionHeader title="o que eu pesquiso" />
+		<Section title="o que eu pesquiso">
 			<div class="research">
 				<p>
 					no mestrado estudei autômatos celulares elementares: fileiras de células que mudam de estado
@@ -175,7 +172,7 @@ const printSocial = socialLinks.map((item) => printUrl(item.href)).join(' · ');
 				    mudança e impresso no papel, onde os controles não existem */}
 				<p class="state sr-only print:not-sr-only" id="ca-state"></p>
 			</div>
-		</section>
+		</Section>
 
 	</div>
 </BaseLayout>
@@ -234,17 +231,13 @@ const printSocial = socialLinks.map((item) => printUrl(item.href)).join(' · ');
 		height: 0.5rem;
 		background: var(--accent);
 	}
+	/* o link de ação do site, com o que é só deste: corpo do texto corrido,
+	   peso e altura de botão — é o único contato direto da página */
 	.cta {
-		display: inline-flex;
-		align-items: center;
-		gap: 0.25rem;
 		min-height: 2.25rem;
-		color: var(--link);
+		font-size: inherit;
+		line-height: inherit;
 		font-weight: 600;
-		transition: color 160ms ease;
-	}
-	.cta :global(svg) {
-		transition: transform 160ms cubic-bezier(0.23, 1, 0.32, 1);
 	}
 	.cta:active {
 		transform: scale(0.97);
@@ -349,12 +342,6 @@ const printSocial = socialLinks.map((item) => printUrl(item.href)).join(' · ');
 	}
 
 	@media (hover: hover) and (pointer: fine) {
-		.cta:hover {
-			color: var(--text);
-		}
-		.cta:hover :global(svg) {
-			transform: translate(2px, -2px);
-		}
 		.chip:hover {
 			color: var(--text);
 		}
